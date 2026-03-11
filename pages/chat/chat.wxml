@@ -1,0 +1,15 @@
+<view class="chat-page">
+  <view class="chat-header">
+    <image src="{{roleInfo.avatar}}" class="avatar"/>
+    <view class="name">{{roleInfo.name}}</view>
+  </view>
+  <scroll-view scroll-y class="chat-history">
+    <block wx:for="{{messages}}" wx:key="id">
+      <chat-bubble msg="{{item}}" />
+    </block>
+  </scroll-view>
+  <view class="chat-input">
+    <input type="text" value="{{inputMsg}}" bindinput="onInput"/>
+    <button bindtap="sendMsg">发送</button>
+  </view>
+</view>

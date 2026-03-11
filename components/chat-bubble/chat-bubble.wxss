@@ -1,0 +1,21 @@
+.chat-bubble {
+  display: flex;
+  margin: 10rpx 0;
+}
+.chat-right {
+  flex-direction: row-reverse;
+}
+.chat-left {
+  flex-direction: row;
+}
+.bubble-content {
+  max-width: 60%;
+  background: #f1f1f1;
+  padding: 8rpx 16rpx;
+  border-radius: 18rpx;
+  font-size: 26rpx;
+  margin: 0 12rpx;
+}
+.chat-right .bubble-content {
+  background: #96e0ff;
+}

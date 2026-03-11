@@ -1,0 +1,5 @@
+<view class="moments-page">
+  <block wx:for="{{moments}}" wx:key="id">
+    <moment-card moment="{{item}}" />
+  </block>
+</view>

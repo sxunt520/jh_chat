@@ -1,0 +1,11 @@
+<view class="messages-page">
+  <block wx:for="{{chats}}" wx:key="id">
+    <view class="chat-record" bindtap="gotoChat" data-roleid="{{item.roleId}}">
+      <image src="{{item.avatar}}" class="avatar"/>
+      <view class="info">
+        <view class="name">{{item.name}}</view>
+        <view class="last-msg">{{item.lastMsg}}</view>
+      </view>
+    </view>
+  </block>
+</view>

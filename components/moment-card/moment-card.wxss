@@ -1,0 +1,30 @@
+.moment-card {
+  display: flex;
+  padding: 20rpx;
+  border-bottom: 1px solid #eee;
+}
+.moment-content {
+  margin-left: 20rpx;
+}
+.username {
+  font-weight: bold;
+}
+.text {
+  margin-top: 10rpx;
+}
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 8rpx;
+}
+.moment-img {
+  width: 100rpx;
+  height: 100rpx;
+  margin: 2rpx;
+  border-radius: 8rpx;
+}
+.date {
+  font-size: 20rpx;
+  color: #999;
+  margin-top: 6rpx;
+}

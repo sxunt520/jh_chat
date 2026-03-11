@@ -1,0 +1,32 @@
+{
+  "pages": [
+    "pages/discovery/discovery",
+    "pages/chat/chat",
+    "pages/messages/messages",
+    "pages/moments/moments",
+    "pages/mine/mine"
+  ],
+  "window": {
+    "navigationBarTitleText": "枕边江湖-陪聊你的每一个夜晚"
+  },
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/discovery/discovery",
+        "text": "发现"
+      },
+      {
+        "pagePath": "pages/messages/messages",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/moments/moments",
+        "text": "朋友圈"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的"
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+<view class="mine-page">
+  <button wx:if="{{!userInfo}}" open-type="getUserInfo" bindgetuserinfo="onLogin">微信授权登录</button>
+  <view wx:if="{{userInfo}}">
+    <image src="{{userInfo.avatarUrl}}" class="avatar"/>
+    <view class="name">{{userInfo.nickName}}</view>
+    <view class="counts">
+      <view>关注：{{stats.follow}}</view>
+      <view>粉丝：{{stats.fans}}</view>
+      <view>新消息：{{stats.newMsg}}</view>
+    </view>
+  </view>
+</view>

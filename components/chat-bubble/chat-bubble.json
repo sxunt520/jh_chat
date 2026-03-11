@@ -1,0 +1,16 @@
+{
+  "component": true,
+  "properties": {
+    "msg": {
+      "type": "Object"
+    },
+    "userAvatar": {
+      "type": "String",
+      "value": ""
+    },
+    "roleAvatar": {
+      "type": "String",
+      "value": ""
+    }
+  }
+}

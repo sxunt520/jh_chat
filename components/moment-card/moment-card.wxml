@@ -1,0 +1,11 @@
+<view class="moment-card">
+  <user-avatar avatar="{{moment.user.avatar}}" />
+  <view class="moment-content">
+    <view class="username">{{moment.user.nickname}}</view>
+    <view class="text">{{moment.content}}</view>
+    <view class="images">
+      <image wx:for="{{moment.images}}" wx:key="{{index}}" src="{{item}}" class="moment-img" />
+    </view>
+    <view class="date">{{moment.created_at}}</view>
+  </view>
+</view>

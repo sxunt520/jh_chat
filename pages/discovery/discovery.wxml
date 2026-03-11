@@ -1,0 +1,12 @@
+<view class="discovery-page">
+  <view class="title">选择你喜欢的虚拟人物</view>
+  <view class="avatar-list">
+    <block wx:for="{{roles}}" wx:key="id">
+      <view class="role-item" bindtap="onRoleTap" data-id="{{item.id}}">
+        <image src="{{item.avatar}}" class="avatar"/>
+        <view class="name">{{item.name}}</view>
+        <view class="desc">{{item.desc}}</view>
+      </view>
+    </block>
+  </view>
+</view>
