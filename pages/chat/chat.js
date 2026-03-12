@@ -9,17 +9,32 @@ Page({
     this.setData({ roleId: options.roleId });
     // 拉角色信息
     wx.request({
-      url: `https://你的后端/api/roles/${options.roleId}`,
+      url: `https://dj.awsl8.com/v1/chat/role-detail/`,
+      method: 'post',
+      data: {
+        roleId: options.roleId,
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
       success: (res) => {
-        this.setData({ roleInfo: res.data });
+        this.setData({ roleInfo: res.data.data });
       }
     });
-    this.loadChatHistory();
+    this.loadChatHistory(options);
   },
-  loadChatHistory() {
+  loadChatHistory(options) {
     wx.request({
-      url: `https://你的后端/api/chat/history?roleId=${this.data.roleId}`,
+      url: `https://dj.awsl8.com/v1/chat/history-message/`,
+      method: 'post',
+      data: {
+        roleId: options.roleId,
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
       success: (res) => {
+        console.log('聊天记录:', res.data.messages);
         this.setData({ messages: res.data.messages });
       }
     });
@@ -31,13 +46,17 @@ Page({
     const msg = this.data.inputMsg;
     // 发消息到后端，返回AI回复
     wx.request({
-      url: "https://你的后端/api/chat/send",
+      url: "https://dj.awsl8.com/v1/chat/send-message",
       method: "POST",
       data: {
         roleId: this.data.roleId,
         content: msg
       },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
       success: (res) => {
+        console.log(res);
         this.setData({ messages: res.data.messages, inputMsg: "" });
       }
     });
