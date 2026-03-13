@@ -31,7 +31,8 @@ Page({
         roleId: options.roleId,
       },
       header: {
-        'content-type': 'application/x-www-form-urlencoded'
+        'content-type': 'application/x-www-form-urlencoded',
+        'Token':wx.getStorageSync('Token')
       },
       success: (res) => {
         console.log('聊天记录:', res.data.messages);
@@ -53,7 +54,8 @@ Page({
         content: msg
       },
       header: {
-        'content-type': 'application/x-www-form-urlencoded'
+        'content-type': 'application/x-www-form-urlencoded',
+        'Token':wx.getStorageSync('Token')
       },
       success: (res) => {
         console.log(res);

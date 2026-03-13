@@ -1,0 +1,183 @@
+/* 容器基础 */
+.container {
+  min-height: 100vh;
+  background-color: #f5f6fa;
+  padding-bottom: 40rpx;
+}
+
+/* 1. 用户卡片 */
+.user-card {
+  position: relative;
+  height: auto;
+  margin: 30rpx 30rpx 0;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+
+.card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 220rpx;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  z-index: 1;
+}
+
+.card-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding: 40rpx 30rpx 40rpx;
+}
+
+.avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  border: 4rpx solid #fff;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+  background-color: #eee;
+}
+
+.user-info {
+  margin-left: 30rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.wx-id {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.login-btn {
+  background-color: #07c160;
+  color: #fff;
+  font-size: 24rpx;
+  padding: 0 20rpx;
+  height: 50rpx;
+  line-height: 50rpx;
+  border-radius: 25rpx;
+  margin: 0;
+}
+
+/* 2. 数据统计行 */
+.stats-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #fff;
+  margin: 20rpx 30rpx;
+  padding: 30rpx 0;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.stat-num {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.stat-line {
+  width: 1rpx;
+  height: 60rpx;
+  background-color: #eee;
+}
+
+.red-dot {
+  position: absolute;
+  top: -10rpx;
+  right: 20%;
+  width: 16rpx;
+  height: 16rpx;
+  background-color: #ff4d4f;
+  border-radius: 50%;
+  border: 2rpx solid #fff;
+}
+
+/* 3. 菜单列表 */
+.menu-section {
+  margin: 0 30rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item .icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+  width: 40rpx;
+  text-align: center;
+}
+
+.menu-item .label {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.menu-item .arrow {
+  font-size: 32rpx;
+  color: #ccc;
+  font-weight: bold;
+}
+
+/* 4. 底部操作 */
+.footer-action {
+  margin: 40rpx 30rpx;
+}
+
+.logout-btn {
+  background-color: #fff;
+  color: #ff4d4f;
+  border: 1rpx solid #ff4d4f;
+  font-size: 28rpx;
+  border-radius: 12rpx;
+  padding: 20rpx 0;
+}
+
+.empty-tip {
+  text-align: center;
+  margin-top: 100rpx;
+  color: #999;
+  font-size: 28rpx;
+}

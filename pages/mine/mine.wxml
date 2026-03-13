@@ -1,5 +1,88 @@
+<view class="container">
+  <!-- 1. 头部用户信息卡片 -->
+  <view class="user-card">
+    <view class="card-bg"></view>
+    <view class="card-content">
+      <image class="avatar" src="{{userInfo.picture_url}}" mode="aspectFill" bindtap="chooseAvatar"></image>
+      <view class="user-info">
+        <text class="nickname">{{userInfo.nickname || '点击登录'}}</text>
+        <text class="wx-id" wx:if="{{userInfo.id}}">ID: {{userInfo.id}}</text>
+        <button class="login-btn" wx:else bindtap="handleLogin" size="mini">微信一键登录</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 2. 数据概览 (关注/粉丝/消息) -->
+  <view class="stats-row" wx:if="{{isLogin}}">
+    <view class="stat-item" bindtap="goToPage" data-url="/pages/follow/follow">
+      <text class="stat-num">{{stats.followCount}}</text>
+      <text class="stat-label">关注角色</text>
+    </view>
+    <view class="stat-line"></view>
+    <view class="stat-item" bindtap="goToPage" data-url="/pages/fans/fans">
+      <text class="stat-num">{{stats.fansCount}}</text>
+      <text class="stat-label">我的粉丝</text>
+    </view>
+    <view class="stat-line"></view>
+    <view class="stat-item" bindtap="goToPage" data-url="/pages/message/message">
+      <text class="stat-num">{{stats.newMsgCount}}</text>
+      <text class="stat-label">新消息</text>
+      <view class="red-dot" wx:if="{{stats.newMsgCount > 0}}"></view>
+    </view>
+  </view>
+
+  <!-- 3. 功能菜单列表 -->
+  <view class="menu-section" wx:if="{{isLogin}}">
+    <view class="menu-item" bindtap="goToPage" data-url="/pages/chat-history/history">
+      <text class="icon">💬</text>
+      <text class="label">聊天记录</text>
+      <text class="arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goToPage" data-url="/pages/settings/settings">
+      <text class="icon">⚙️</text>
+      <text class="label">设置</text>
+      <text class="arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goToPage" data-url="/pages/about/about">
+      <text class="icon">ℹ️</text>
+      <text class="label">关于我们</text>
+      <text class="arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goToPage" data-url="/pages/feedback/feedback">
+      <text class="icon">📝</text>
+      <text class="label">意见反馈</text>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 4. 底部退出按钮 -->
+  <view class="footer-action" wx:if="{{isLogin}}">
+    <button class="logout-btn" bindtap="handleLogout">退出登录</button>
+  </view>
+  
+  <!-- 未登录提示 -->
+  <view class="empty-tip" wx:else>
+    <text>登录后即可开启专属陪伴之旅</text>
+  </view>
+</view>
+
 <view class="mine-page">
-  <button wx:if="{{!userInfo}}" open-type="getUserInfo" bindgetuserinfo="onLogin">微信授权登录</button>
+  <!-- 头像选择 + 昵称输入 -->
+<view class="user-info">
+  <!-- 头像选择按钮 -->
+  <button class="avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+    <image class="avatar" src="{{avatarUrl}}"></image>
+  </button>
+  
+  <!-- 昵称输入框 -->
+  <input type="nickname" class="nickname-input" placeholder="请输入昵称" bindinput="onNicknameInput" value="{{nickName}}"/>
+  
+  <!-- 提交按钮 -->
+  <button bindtap="submitUserInfo">提交信息</button>
+</view>
+
+  <button type="primary" open-type="getUserProfile" bindtap="handleUserProfile">微信授权登录</button>
+  <!-- <button wx:if="{{!userInfo}}" open-type="getUserInfo" bindgetuserinfo="onLogin">微信授权登录</button>
   <view wx:if="{{userInfo}}">
     <image src="{{userInfo.avatarUrl}}" class="avatar"/>
     <view class="name">{{userInfo.nickName}}</view>
@@ -8,5 +91,5 @@
       <view>粉丝：{{stats.fans}}</view>
       <view>新消息：{{stats.newMsg}}</view>
     </view>
-  </view>
+  </view> -->
 </view>
