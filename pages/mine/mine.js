@@ -2,7 +2,10 @@ Page({
   data: { 
     isLogin: false,
     userInfo: null, 
-    stats: { follow: 0, fans: 0, newMsg: 0 }
+    stats: { follow: 0, fans: 0, newMsg: 0 },
+    // 编辑昵称相关数据
+    showEditModal: false,
+    tempNickname: '' // 临时存储输入的昵称
    },
   onLoad() {
     this.checkLoginStatus();
@@ -185,6 +188,90 @@ Page({
         //   'userInfo.picture_url': tempFilePath
         // });
         // wx.showToast({ title: '头像已更新', icon: 'none' });
+      }
+    });
+  },
+
+
+  // 修改昵称 打开编辑弹窗
+  openEditNickname() {
+    if (!this.data.isLogin) return;
+    this.setData({
+      tempNickname: this.data.userInfo.nickName, // 填入当前昵称
+      showEditModal: true
+    });
+  },
+
+  // 修改昵称 关闭弹窗
+  closeEditModal() {
+    this.setData({
+      showEditModal: false,
+      tempNickname: ''
+    });
+  },
+
+  // 修改昵称 监听输入框变化
+  onInputNickname(e) {
+    this.setData({
+      tempNickname: e.detail.value
+    });
+  },
+
+  // 修改昵称 确认修改
+  confirmEditNickname() {
+    const newNick = this.data.tempNickname.trim();
+    
+    // 1. 简单校验
+    if (!newNick) {
+      wx.showToast({ title: '昵称不能为空', icon: 'none' });
+      return;
+    }
+    if (newNick.length < 2 || newNick.length > 10) {
+      wx.showToast({ title: '昵称长度需2-10字', icon: 'none' });
+      return;
+    }
+
+    wx.showLoading({ title: '保存中...' });
+
+    // 2. 请求后端更新
+    const Token = wx.getStorageSync('Token');
+
+    wx.request({
+      url: 'https://dj.awsl8.com/v1/member/edit-nickname',
+      method: 'POST',
+      header: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Token': Token
+      },
+      data: {
+        nickname: newNick
+      },
+      success: (res) => {
+        console.log(res.data);
+        wx.hideLoading();
+        if (res.data.status === 0) {
+          // 3. 更新本地数据
+          const newUserInfo = {
+            ...this.data.userInfo,// 先展开原有的属性
+            nickname: newNick // 再覆盖需要修改的属性
+          };
+          
+          this.setData({
+            userInfo: newUserInfo,
+            showEditModal: false
+          });
+
+          // 4. 更新缓存
+          wx.setStorageSync('userInfo', newUserInfo);
+
+          wx.showToast({ title: '修改成功', icon: 'success' });
+        } else {
+          wx.showToast({ title: res.data.message || '修改失败', icon: 'none' });
+        }
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showToast({ title: '网络错误', icon: 'none' });
       }
     });
   },

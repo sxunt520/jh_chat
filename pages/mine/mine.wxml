@@ -5,7 +5,15 @@
     <view class="card-content">
       <image class="avatar" src="{{userInfo.picture_url}}" mode="aspectFill" bindtap="chooseAvatar"></image>
       <view class="user-info">
-        <text class="nickname">{{userInfo.nickname || '点击登录'}}</text>
+      
+        <!-- <text class="nickname">{{userInfo.nickname || '点击登录'}}</text> -->
+        <view class="nickname-box" bindtap="openEditNickname" wx:if="{{isLogin}}">
+          <text class="nickname">{{userInfo.nickname}}</text>
+          <text class="edit-icon">✎</text>
+        </view>
+        <!-- 未登录状态保持原样 -->
+        <text class="nickname" wx:else>{{userInfo.nickname || '点击登录'}}</text>
+
         <text class="wx-id" wx:if="{{userInfo.id}}">ID: {{userInfo.id}}</text>
         <button class="login-btn" wx:else bindtap="handleLogin" size="mini">微信一键登录</button>
       </view>
@@ -64,32 +72,25 @@
   <view class="empty-tip" wx:else>
     <text>登录后即可开启专属陪伴之旅</text>
   </view>
-</view>
 
-<view class="mine-page">
-  <!-- 头像选择 + 昵称输入 -->
-<view class="user-info">
-  <!-- 头像选择按钮 -->
-  <button class="avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-    <image class="avatar" src="{{avatarUrl}}"></image>
-  </button>
-  
-  <!-- 昵称输入框 -->
-  <input type="nickname" class="nickname-input" placeholder="请输入昵称" bindinput="onNicknameInput" value="{{nickName}}"/>
-  
-  <!-- 提交按钮 -->
-  <button bindtap="submitUserInfo">提交信息</button>
-</view>
-
-  <button type="primary" open-type="getUserProfile" bindtap="handleUserProfile">微信授权登录</button>
-  <!-- <button wx:if="{{!userInfo}}" open-type="getUserInfo" bindgetuserinfo="onLogin">微信授权登录</button>
-  <view wx:if="{{userInfo}}">
-    <image src="{{userInfo.avatarUrl}}" class="avatar"/>
-    <view class="name">{{userInfo.nickName}}</view>
-    <view class="counts">
-      <view>关注：{{stats.follow}}</view>
-      <view>粉丝：{{stats.fans}}</view>
-      <view>新消息：{{stats.newMsg}}</view>
+<!-- 【新增】修改昵称弹窗 -->
+<view class="modal-mask" wx:if="{{showEditModal}}">
+    <view class="modal-content">
+      <view class="modal-title">修改昵称</view>
+      <input 
+        class="modal-input" 
+        type="text" 
+        placeholder="请输入新昵称 (2-10字)" 
+        value="{{tempNickname}}" 
+        maxlength="10"
+        bindinput="onInputNickname"
+        focus="{{showEditModal}}"
+      />
+      <view class="modal-buttons">
+        <button class="btn-cancel" bindtap="closeEditModal">取消</button>
+        <button class="btn-confirm" bindtap="confirmEditNickname">确定</button>
+      </view>
     </view>
-  </view> -->
+  </view>
+
 </view>
