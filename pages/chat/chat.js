@@ -166,200 +166,196 @@ Page({
     });
   },
 
-  methods: {
-    // 发送消息事件处理
-    onSend(e) {
-      const { value } = e.detail;
-      if (!value || value.trim() === '') return;
+  // 发送消息事件处理
+  onSend(e) {
+    const { value } = e.detail;
+    if (!value || value.trim() === '') return;
 
-      // 创建用户消息对象
-      const userMessage = {
-        message: {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              data: value.trim(),
-            },
-          ],
-        },
-        chatId: getUniqueKey(),
-      };
-
-      // 将用户消息插入到chatList的开头（因为reverse为true，所以用unshift）
-      this.setData({
-        chatList: [userMessage, ...this.data.chatList],
-        value: '', // 清空输入框
-      });
-
-      // 模拟助手回复（可选）
-      this.simulateAssistantReply(value.trim());
-    },
-
-    // 停止事件处理
-    onStop() {
-      console.log('停止发送');
-      this.setData({
-        loading: false,
-      });
-    },
-
-    // 聚焦事件处理
-    onFocus() {
-      console.log('输入框聚焦');
-    },
-
-    // 获取当前时间
-    getCurrentTime() {
-      const now = new Date();
-      const hours = now.getHours().toString().padStart(2, '0');
-      const minutes = now.getMinutes().toString().padStart(2, '0');
-      return `${hours}:${minutes}`;
-    },
-
-    // 模拟助手回复
-    simulateAssistantReply() {
-      this.setData({ loading: true });
-
-      const assistantMessage = mockData;
-      assistantMessage.chatId = getUniqueKey();
-
-      this.setData({
-        chatList: [assistantMessage, ...this.data.chatList],
-      });
-
-      const that = this;
-      wx.nextTick(async () => {
-        await fetchStream(mockData1, {
-          success(result) {
-            if (!that.data.loading) return;
-            that.data.chatList[0].message.content[0].data.text += result;
-            that.setData({
-              chatList: that.data.chatList,
-            });
+    // 创建用户消息对象
+    const userMessage = {
+      message: {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            data: value.trim(),
           },
-          complete() {
-            that.data.chatList[0].message.content[0].data.title = '思考完成';
-            that.setData({
-              chatList: that.data.chatList,
-            });
-          },
-        });
+        ],
+      },
+      chatId: getUniqueKey(),
+    };
 
-        if (!that.data.loading) return;
+    // 将用户消息插入到chatList的开头（因为reverse为true，所以用unshift）
+    this.setData({
+      chatList: [userMessage, ...this.data.chatList],
+      value: '', // 清空输入框
+    });
 
-        that.data.chatList[0].message.content.push({
-          type: 'markdown',
-          data: '',
-        });
-        that.setData({
-          chatList: that.data.chatList,
-        });
-
-        await fetchStream(mockData2, {
-          success(result) {
-            if (!that.data.loading) return;
-            that.data.chatList[0].message.content[1].data += result;
-            that.setData({
-              chatList: that.data.chatList,
-            });
-          },
-          complete() {
-            that.data.chatList[0].message.status = 'complete';
-            that.setData({
-              chatList: that.data.chatList,
-            });
-            that.setData({
-              loading: false,
-            });
-          },
-        });
-      });
-    },
-    handleAction(e) {
-      const { name, active, data } = e.detail;
-
-      let message = '';
-      switch (name) {
-        case 'replay':
-          message = '重新生成';
-          break;
-        case 'copy':
-          console.log(data);
-          message = '复制成功';
-          break;
-        case 'good':
-          message = active ? '点赞成功' : '取消点赞';
-          break;
-        case 'bad':
-          message = active ? '点踩成功' : '取消点踩';
-          break;
-        case 'share':
-          message = '分享功能';
-          break;
-        default:
-          message = `执行了${name}操作`;
-      }
-
-      Toast({
-        context: this,
-        selector: '#t-toast',
-        message,
-        theme: 'success',
-      });
-    },
-    showPopover(e) {
-      const { id, longPressPosition } = e.detail;
-
-      let role = '';
-      this.data.chatList.forEach((item) => {
-        if (item.chatId === id) {
-          role = item.message.role;
-        }
-      });
-
-      // 仅当 role 为 user 时才显示 popover
-      if (role !== 'user') {
-        return;
-      }
-
-      this.setData({
-        activePopoverId: id,
-        longPressPosition,
-      });
-    },
-    handlePopoverAction(e) {
-      e.detail.chatId = this.data.activePopoverId;
-      this.handleAction(e);
-    },
+    // 模拟助手回复（可选）
+    this.simulateAssistantReply(value.trim());
   },
-  lifetimes: {
-    attached: function () {
-      console.log('-----attached----');
-      /**
-       * 计算内容区域高度
-       * 生成CSS calc表达式：calc(100vh - 96rpx - 导航高度 - 底部安全区域高度)
-       */
-      try {
-        // 获取当前的导航栏高度和安全区域高度
-        const navigationBarHeight = getNavigationBarHeight() || 0;
 
-        // 生成CSS calc表达式字符串
-        const contentHeight = `calc(100vh - 96rpx - ${navigationBarHeight}px)`;
+  // 停止事件处理
+  onStop() {
+    console.log('停止发送');
+    this.setData({
+      loading: false,
+    });
+  },
 
-        this.setData({
-          contentHeight: contentHeight,
-        });
+  // 聚焦事件处理
+  onFocus() {
+    console.log('输入框聚焦');
+  },
 
-        console.log('内容区域高度CSS表达式:', contentHeight);
-      } catch (error) {
-        console.error('生成内容高度表达式失败:', error);
-        this.setData({
-          contentHeight: 'calc(100vh - 96rpx)',
-        });
+  // 获取当前时间
+  getCurrentTime() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  },
+
+  // 模拟助手回复
+  simulateAssistantReply() {
+    this.setData({ loading: true });
+
+    const assistantMessage = mockData;
+    assistantMessage.chatId = getUniqueKey();
+
+    this.setData({
+      chatList: [assistantMessage, ...this.data.chatList],
+    });
+
+    const that = this;
+    wx.nextTick(async () => {
+      await fetchStream(mockData1, {
+        success(result) {
+          if (!that.data.loading) return;
+          that.data.chatList[0].message.content[0].data.text += result;
+          that.setData({
+            chatList: that.data.chatList,
+          });
+        },
+        complete() {
+          that.data.chatList[0].message.content[0].data.title = '思考完成';
+          that.setData({
+            chatList: that.data.chatList,
+          });
+        },
+      });
+
+      if (!that.data.loading) return;
+
+      that.data.chatList[0].message.content.push({
+        type: 'markdown',
+        data: '',
+      });
+      that.setData({
+        chatList: that.data.chatList,
+      });
+
+      await fetchStream(mockData2, {
+        success(result) {
+          if (!that.data.loading) return;
+          that.data.chatList[0].message.content[1].data += result;
+          that.setData({
+            chatList: that.data.chatList,
+          });
+        },
+        complete() {
+          that.data.chatList[0].message.status = 'complete';
+          that.setData({
+            chatList: that.data.chatList,
+          });
+          that.setData({
+            loading: false,
+          });
+        },
+      });
+    });
+  },
+  handleAction(e) {
+    const { name, active, data } = e.detail;
+
+    let message = '';
+    switch (name) {
+      case 'replay':
+        message = '重新生成';
+        break;
+      case 'copy':
+        console.log(data);
+        message = '复制成功';
+        break;
+      case 'good':
+        message = active ? '点赞成功' : '取消点赞';
+        break;
+      case 'bad':
+        message = active ? '点踩成功' : '取消点踩';
+        break;
+      case 'share':
+        message = '分享功能';
+        break;
+      default:
+        message = `执行了${name}操作`;
+    }
+
+    Toast({
+      context: this,
+      selector: '#t-toast',
+      message,
+      theme: 'success',
+    });
+  },
+  showPopover(e) {
+    const { id, longPressPosition } = e.detail;
+
+    let role = '';
+    this.data.chatList.forEach((item) => {
+      if (item.chatId === id) {
+        role = item.message.role;
       }
-    },
-  }
+    });
 
+    // 仅当 role 为 user 时才显示 popover
+    if (role !== 'user') {
+      return;
+    }
+
+    this.setData({
+      activePopoverId: id,
+      longPressPosition,
+    });
+  },
+  handlePopoverAction(e) {
+    e.detail.chatId = this.data.activePopoverId;
+    this.handleAction(e);
+  },
+  onReady() {
+    console.log('-----attached----');
+    /**
+     * 计算内容区域高度
+     * 生成CSS calc表达式：calc(100vh - 96rpx - 导航高度 - 底部安全区域高度)
+     */
+    try {
+      // 获取当前的导航栏高度和安全区域高度
+      const navigationBarHeight = getNavigationBarHeight() || 0;
+
+      // 生成CSS calc表达式字符串
+      //const contentHeight = `calc(100vh - 96rpx - ${navigationBarHeight}px)`;
+      const contentHeight = `calc(100vh - 76rpx)`;
+
+      this.setData({
+        contentHeight: contentHeight,
+      });
+
+      console.log('内容区域高度CSS表达式:', contentHeight);
+    } catch (error) {
+      console.error('生成内容高度表达式失败:', error);
+      this.setData({
+        contentHeight: 'calc(100vh - 96rpx)',
+      });
+    }
+  },
 
 });

@@ -4,17 +4,22 @@
  * @returns {number} 总高度（单位：px）
  */
 export const getNavigationBarHeight = () => {
-  const systemInfo = wx.getSystemInfoSync();
-  // 状态栏高度
-  const statusBarHeight = systemInfo.statusBarHeight || 20;
-  
-  // 获取菜单按钮（右上角胶囊）的位置信息
-  const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
-  
-  // 导航栏高度 = 胶囊高度 + (顶部间距) * 2
-  // 顶部间距 = 胶囊顶部坐标 - 状态栏高度
-  const navBarHeight = (menuButtonInfo.top - statusBarHeight) * 2 + menuButtonInfo.height;
-  
-  // 返回总高度
-  return statusBarHeight + navBarHeight;
+  try {
+    // 1. 使用新 API 获取窗口信息（包含 statusBarHeight）
+    const windowInfo = wx.getWindowInfo();
+    const statusBarHeight = windowInfo.statusBarHeight || 20;
+    
+    // 2. 获取菜单按钮（右上角胶囊）的位置信息（此 API 未废弃）
+    const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
+    
+    // 3. 计算导航栏高度（公式不变）
+    const navBarHeight = (menuButtonInfo.top - statusBarHeight) * 2 + menuButtonInfo.height;
+    
+    // 4. 返回总高度
+    return statusBarHeight + navBarHeight;
+  } catch (error) {
+    console.error('获取导航栏高度失败', error);
+    // 降级处理：返回一个默认值（比如 80px）
+    return 80;
+  }
 };

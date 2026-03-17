@@ -11,16 +11,19 @@
         placement="{{item.message.role === 'user' ? 'right' : 'left'}}"
         bind:message-longpress="showPopover"
       >
-        <t-chat-actionbar
+        <!-- <t-chat-actionbar
           wx:if="{{chatIndex !== chatList.length - 1 && item.message.status === 'complete' && item.message.role === 'assistant'}}"
           slot="actionbar"
           placement="end"
           bind:actions="handleAction"
-        />
+        /> -->
       </t-chat-message>
     </block>
     <view slot="footer">
       <t-chat-sender
+        style="background: #fff;"
+        placeholder="少侠你想说点什么？"
+        adjust-position	="false"
         value="{{value}}"
         loading="{{loading}}"
         disabled="{{disabled}}"
