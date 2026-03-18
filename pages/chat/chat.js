@@ -25,7 +25,7 @@ const mockData = {
 };
 
 const mockData1 =
-  '嗯，用户问的是南极的自动提款机叫什么名字。这个问题有点有趣，因为南极是一个极端寒冷的地方，而且大部分地区都是无人居住的科研站。\n';
+  '嗯，我想下关于你这个问题！南极的自动提款机并没有一个特定的专属名称\n';
 
 const mockData2 =
   '\n\n南极的自动提款机并没有一个特定的专属名称，但历史上确实有一台ATM机曾短暂存在于南极的**麦克默多站**（McMurdo Station）。这台ATM由美国**富兰克林国家银行**（Wells Fargo）于1998年安装，主要供驻扎在该站的科研人员使用。不过，由于南极的极端环境和极低的人口密度，这台ATM机并未长期运行，最终被移除。\n\n**背景补充：**\n- **麦克默多站**是美国在南极最大的科研基地，夏季人口可达约1,000人，冬季约200人。\n- 该ATM机更多是作为一种象征性服务存在，实际使用频率极低，因为南极科考人员通常依靠预支资金或电子支付。\n- 目前南极已无长期运行的ATM机，现代科考站更多依赖非现金交易方式。\n\n南极作为非主权领土，其基础设施以科研和生活支持为主，商业金融服务非常有限。若有类似设施，通常是临时或实验性质的。';
@@ -87,7 +87,9 @@ Page({
         chatId: getUniqueKey(),
       },
       {
+        avatar: 'https://tdesign.gtimg.com/site/chat-avatar.png',
         message: {
+          status: 'complete',
           role: 'user',
           content: [
             {
@@ -141,6 +143,43 @@ Page({
         this.setData({ messages: res.data.messages });
       }
     });
+
+    wx.request({
+      url: `https://dj.awsl8.com/v1/chat/history-message2/`,
+      method: 'post',
+      data: {
+        roleId: options.roleId,
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Token':wx.getStorageSync('Token')
+      },
+      success: (res) => {
+        console.log('聊天记录2:', res.data.data);
+        if (res.data.status==0 && res.data.data) {
+           //const contentArray = res.data.data.map(item => item.message.content);//遍历每一个元素，返回一个「全新content数组」
+
+           //处理content，转换为数组，方法一
+          //  res.data.data.forEach((item2, index2) => {//遍历res.data.data处理里面的content，转换为数组
+          //   item2.message.content = [item2.message.content];//content这里要处理加个[]，使它变成数组
+          //   });
+
+          //处理content，转换为数组，方法二， ...item展开，然后content重写覆盖，处理加个[]，使它变成数组
+          res.data.data=res.data.data.map(item => ({
+            ...item,
+            message: {
+              ...item.message,
+              content: [item.message.content]  // 将原content包装成数组
+            },
+            //chatId: getUniqueKey(),
+          }));
+
+          this.setData({ chatList: res.data.data});
+        }
+      
+      }
+    });
+
   },
   onInput(e) {
     this.setData({ inputMsg: e.detail.value });
@@ -185,13 +224,63 @@ Page({
       chatId: getUniqueKey(),
     };
 
-    // 将用户消息插入到chatList的开头（因为reverse为true，所以用unshift）
+    // // 将用户消息插入到chatList的开头（因为reverse为true，所以用unshift）
     this.setData({
       chatList: [userMessage, ...this.data.chatList],
       value: '', // 清空输入框
     });
 
-    // 模拟助手回复（可选）
+    //不思考 直接请求后端发送消息,发消息到后端，返回AI回复
+    // const that = this;
+    // that.data.chatList[0].message.content.push({
+    //   type: 'markdown',
+    //   data: '',
+    // });
+    // //that.data.chatList[0].message.role = 'user';
+    // that.setData({
+    //   chatList: that.data.chatList,
+    // });
+    // wx.nextTick(async () => {
+    //   wx.request({
+    //     url: "https://dj.awsl8.com/v1/chat/send-message2",
+    //     method: "POST",
+    //     data: {
+    //       roleId: that.data.roleId,
+    //       content: value
+    //     },
+    //     header: {
+    //       'content-type': 'application/x-www-form-urlencoded',
+    //       'Token':wx.getStorageSync('Token')
+    //     },
+    //     success: (res) => {
+    //       console.log('发送聊天2:', res.data.data);
+    //       if (res.data.status==0 && res.data.data) {
+  
+    //         fetchStream(res.data.data.message.content.data, {
+    //           success(result) {
+    //             that.data.chatList[0].message.content[1].data += result;
+    //             that.setData({
+    //               chatList: that.data.chatList,
+    //             });
+    //           },
+    //           complete() {
+    //             that.data.chatList[0].message.status = 'complete';
+    //             that.setData({
+    //               chatList: that.data.chatList,
+    //             });
+    //             that.setData({
+    //               loading: false,
+    //             });
+    //           },
+    //         });
+  
+    //       }
+  
+    //     }
+    //   });
+    // });
+
+    // 思考中。。。在去请求回答
     this.simulateAssistantReply(value.trim());
   },
 
@@ -217,19 +306,21 @@ Page({
   },
 
   // 模拟助手回复
-  simulateAssistantReply() {
+  simulateAssistantReply(value) {
+   
+    //思考中...
     this.setData({ loading: true });
-
     const assistantMessage = mockData;
     assistantMessage.chatId = getUniqueKey();
-
     this.setData({
       chatList: [assistantMessage, ...this.data.chatList],
     });
 
     const that = this;
     wx.nextTick(async () => {
-      await fetchStream(mockData1, {
+
+      //思考中...分析问题 fetchStream 前面加 await，思考完成才执行下面的接口请求，不加就不用等。
+      fetchStream('嗯，我想一下关于你这个问题！', {
         success(result) {
           if (!that.data.loading) return;
           that.data.chatList[0].message.content[0].data.text += result;
@@ -244,9 +335,9 @@ Page({
           });
         },
       });
-
       if (!that.data.loading) return;
-
+      
+      ////思考完成 请求后端发送消息,发消息到后端，返回AI回复
       that.data.chatList[0].message.content.push({
         type: 'markdown',
         data: '',
@@ -254,25 +345,45 @@ Page({
       that.setData({
         chatList: that.data.chatList,
       });
+      wx.request({
+        url: "https://dj.awsl8.com/v1/chat/send-message2",
+        method: "POST",
+        data: {
+          roleId: that.data.roleId,
+          content: value
+        },
+        header: {
+          'content-type': 'application/x-www-form-urlencoded',
+          'Token':wx.getStorageSync('Token')
+        },
+        success: (res) => {
+          console.log('发送聊天2:', res.data.data);
+          if (res.data.status==0 && res.data.data) {
 
-      await fetchStream(mockData2, {
-        success(result) {
-          if (!that.data.loading) return;
-          that.data.chatList[0].message.content[1].data += result;
-          that.setData({
-            chatList: that.data.chatList,
-          });
-        },
-        complete() {
-          that.data.chatList[0].message.status = 'complete';
-          that.setData({
-            chatList: that.data.chatList,
-          });
-          that.setData({
-            loading: false,
-          });
-        },
+            fetchStream(res.data.data.message.content.data, {
+              success(result) {
+                if (!that.data.loading) return;
+                that.data.chatList[0].message.content[1].data += result;
+                that.setData({
+                  chatList: that.data.chatList,
+                });
+              },
+              complete() {
+                that.data.chatList[0].message.status = 'complete';
+                that.setData({
+                  chatList: that.data.chatList,
+                });
+                that.setData({
+                  loading: false,
+                });
+              },
+            });
+
+          }
+
+        }
       });
+
     });
   },
   handleAction(e) {
