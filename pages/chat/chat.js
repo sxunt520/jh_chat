@@ -8,7 +8,7 @@ const getUniqueKey = () => {
 };
 
 const mockData = {
-  avatar: 'https://tdesign.gtimg.com/site/chat-avatar.png',
+  avatar: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/huangying_avatar.png',
   message: {
     role: 'assistant',
     content: [
@@ -73,7 +73,7 @@ Page({
     ],
     chatList: [
       {
-        avatar: 'https://tdesign.gtimg.com/site/chat-avatar.png',
+        avatar: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/huangying_avatar.png',
         message: {
           status: 'complete',
           role: 'assistant',
@@ -87,7 +87,7 @@ Page({
         chatId: getUniqueKey(),
       },
       {
-        avatar: 'https://tdesign.gtimg.com/site/chat-avatar.png',
+        avatar: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/huangying_avatar.png',
         message: {
           status: 'complete',
           role: 'user',
@@ -230,7 +230,7 @@ Page({
       value: '', // 清空输入框
     });
 
-    //不思考 直接请求后端发送消息,发消息到后端，返回AI回复
+    //不思考 直接请求后端发送消息,发消息到后端，返回AI回复.  用下面simulateAssistantReply2最好
     // const that = this;
     // that.data.chatList[0].message.content.push({
     //   type: 'markdown',
@@ -282,6 +282,9 @@ Page({
 
     // 思考中。。。在去请求回答
     this.simulateAssistantReply(value.trim());
+
+    //不思考，就简单回复
+    //this.simulateAssistantReply2(value.trim());
   },
 
   // 停止事件处理
@@ -311,6 +314,7 @@ Page({
     //思考中...
     this.setData({ loading: true });
     const assistantMessage = mockData;
+    assistantMessage.status = 'pending';
     assistantMessage.chatId = getUniqueKey();
     this.setData({
       chatList: [assistantMessage, ...this.data.chatList],
@@ -319,19 +323,29 @@ Page({
     const that = this;
     wx.nextTick(async () => {
 
+      that.setData({//先清空
+        'chatList[0].message.content[0].data.text': '',
+      });
       //思考中...分析问题 fetchStream 前面加 await，思考完成才执行下面的接口请求，不加就不用等。
       fetchStream('嗯，我想一下关于你这个问题！', {
         success(result) {
           if (!that.data.loading) return;
-          that.data.chatList[0].message.content[0].data.text += result;
+          // that.data.chatList[0].message.content[0].data.text += result;
+          // that.setData({
+          //   chatList: that.data.chatList,
+          // });
           that.setData({
-            chatList: that.data.chatList,
+            'chatList[0].message.content[0].data.text': that.data.chatList[0].message.content[0].data.text + result,
           });
         },
         complete() {
-          that.data.chatList[0].message.content[0].data.title = '思考完成';
+          // that.data.chatList[0].message.content[0].data.title = '思考完成';
+          // that.setData({
+          //   chatList: that.data.chatList,
+          // });
           that.setData({
-            chatList: that.data.chatList,
+            'chatList[0].message.content[0].data.title': '思考完成',
+            //loading: false,
           });
         },
       });
@@ -360,20 +374,34 @@ Page({
           console.log('发送聊天2:', res.data.data);
           if (res.data.status==0 && res.data.data) {
 
+            that.setData({//先清空
+              'chatList[0].message.content[1].data': '',
+            });
             fetchStream(res.data.data.message.content.data, {
               success(result) {
                 if (!that.data.loading) return;
-                that.data.chatList[0].message.content[1].data += result;
+                // that.data.chatList[0].status = 'streaming';
+                // that.data.chatList[0].message.content[1].data += result;
+                // that.setData({
+                //   chatList: that.data.chatList,
+                // });
                 that.setData({
-                  chatList: that.data.chatList,
+                  'chatList[0].status': 'streaming',
+                  'chatList[0].message.content[1].data': that.data.chatList[0].message.content[1].data + result,
                 });
               },
               complete() {
-                that.data.chatList[0].message.status = 'complete';
+                // that.data.chatList[0].message.status = 'complete';
+                // that.data.chatList[0].status = 'complete';
+                // that.setData({
+                //   chatList: that.data.chatList,
+                // });
+                // that.setData({
+                //   loading: false,
+                // });
                 that.setData({
-                  chatList: that.data.chatList,
-                });
-                that.setData({
+                  'chatList[0].message.status': 'complete',
+                  'chatList[0].status': 'complete',
                   loading: false,
                 });
               },
@@ -385,6 +413,97 @@ Page({
       });
 
     });
+  },
+  // 模拟助手回复
+  simulateAssistantReply2(value) {
+    this.setData({ loading: true });
+    // 请求中
+    // const assistantMessage = {
+    //   role: 'assistant',
+    //   content: [
+    //     {
+    //       type: 'markdown',
+    //       data: '',
+    //     },
+    //   ],
+    //   avatar: 'https://tdesign.gtimg.com/site/chat-avatar.png',
+    //   status: 'pending',
+    //   chatId: getUniqueKey(),
+    //   comment: '',
+    // };
+    const assistantMessage = {
+      avatar: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/huangying_avatar.png',
+      message: {
+        role: 'assistant',
+        content: [
+          {
+            type: 'markdown',
+            data:'',
+          },
+        ],
+      },
+      chatId: getUniqueKey(),
+    };
+
+    this.setData({
+      chatList: [assistantMessage, ...this.data.chatList],
+    });
+    const that = this;
+    // wx.nextTick(() => {
+    //   fetchStream(mockData2, {
+    //     success(result) {
+    //       // 生文中
+    //       if (!that.data.loading) return;
+    //       that.setData({
+    //         'chatList[0].status': 'streaming',
+    //         'chatList[0].message.content[0].data': that.data.chatList[0].message.content[0].data + result,
+    //       });
+    //     },
+    //     complete() {
+    //       that.setData({
+    //         'chatList[0].status': 'complete',
+    //         loading: false,
+    //       });
+    //     },
+    //   });
+    // });
+    wx.request({
+      url: "https://dj.awsl8.com/v1/chat/send-message2",
+      method: "POST",
+      data: {
+        roleId: that.data.roleId,
+        content: value
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Token':wx.getStorageSync('Token')
+      },
+      success: (res) => {
+        console.log('发送聊天2:', res.data.data);
+        if (res.data.status==0 && res.data.data) {
+
+          fetchStream(res.data.data.message.content.data, {
+            success(result) {
+              // 生文中
+              if (!that.data.loading) return;
+              that.setData({
+                'chatList[0].status': 'streaming',
+                'chatList[0].message.content[0].data': that.data.chatList[0].message.content[0].data + result,
+              });
+            },
+            complete() {
+              that.setData({
+                'chatList[0].status': 'complete',
+                loading: false,
+              });
+            },
+          });
+
+        }
+
+      }
+    });
+
   },
   handleAction(e) {
     const { name, active, data } = e.detail;

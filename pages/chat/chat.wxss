@@ -11,3 +11,5 @@
 .t-chat-message {
   padding: 0 32rpx;
 }
+
+.t-chat-message--base .t-chat-content,.t-chat-thinking__inner--block{ background: none!important;}
