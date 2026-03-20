@@ -1,0 +1,140 @@
+<view class="container">
+
+<!-- 【顶部栏】钻石 Icon -->
+<view class="top-bar">
+  <view class="diamond-btn" catchtap="openVipPage">
+    <text class="icon">💎</text>
+    <text class="label">VIP</text>
+  </view>
+</view>
+
+<!-- 【核心区域】全屏 Swiper -->
+<!-- 注意：height 计算时不再动态减去键盘高度，因为我们要固定布局 -->
+<swiper 
+  class="main-swiper" 
+  indicator-dots="{{false}}" 
+  vertical="{{true}}" 
+  duration="400"
+  bindchange="onPageChange"
+  style="height: calc(100vh - {{inputAreaTotalHeight}}px);"
+>
+  <swiper-item wx:for="{{pages}}" wx:key="id">
+    <view class="page-content">
+      <image src="{{item.bgUrl}}" mode="aspectFill" class="page-bg" />
+      <view class="bg-mask"></view>
+
+      <view class="content-wrapper">
+        <!-- 消息区 -->
+        <view class="message-area {{item.showHistory ? 'history-mode' : ''}}">
+          <scroll-view wx:if="{{item.showHistory}}" class="history-list" scroll-y="true" scroll-into-view="{{item.scrollToView}}" scroll-with-animation="true">
+            <view wx:for="{{item.chatList}}" wx:key="cid" id="msg-{{item.id}}-{{cid}}" class="chat-item {{c.isSelf ? 'self' : 'other'}}" wx:for-item="c">
+              <view class="bubble {{c.isSelf ? 'bubble-self' : 'bubble-other'}}">{{c.content}}</view>
+              <view class="time">{{c.time}}</view>
+            </view>
+            <view id="anchor-{{item.id}}"></view>
+          </scroll-view>
+          <view wx:else class="latest-box" catchtap="openCommentModal" data-id="{{item.id}}">
+            <text>{{item.latestMessage.content}}</text>
+            <view class="hint-text">点击查看全部评论</view>
+          </view>
+        </view>
+
+        <!-- 按钮区 -->
+        <view class="action-bar">
+          <view class="btn" catchtap="handleLike" data-id="{{item.id}}"><text class="icon">👍</text><text class="num">{{item.likes}}</text></view>
+          <view class="btn" catchtap="handleShare" data-id="{{item.id}}"><text class="icon">🔗</text><text>分享</text></view>
+          <view class="btn" catchtap="openCommentModal" data-id="{{item.id}}"><text class="icon">💬</text><text>评论</text></view>
+          <view class="btn {{item.showHistory ? 'active' : ''}}" catchtap="toggleHistory" data-id="{{item.id}}"><text class="icon">🕒</text><text>{{item.showHistory ? '返回' : '历史'}}</text></view>
+        </view>
+      </view>
+    </view>
+  </swiper-item>
+</swiper>
+
+<!-- 【底部固定区域】输入框 + 扩展菜单 -->
+<view class="fixed-bottom-area" style="height: {{inputAreaTotalHeight}}px;">
+  
+  <!-- 扩展菜单 (默认隐藏，点击+号显示) -->
+  <view class="expand-menu {{showExpandMenu ? 'show' : ''}}">
+    <view class="menu-item" catchtap="handleSendImage">
+      <view class="m-icon bg-blue">🖼️</view>
+      <text>发图片</text>
+    </view>
+    <view class="menu-item" catchtap="handleHeartCommand">
+      <view class="m-icon bg-pink">❤️</view>
+      <text>心动指令</text>
+    </view>
+  </view>
+
+  <!-- 输入框主体 -->
+  <view class="input-bar">
+    <view class="voice-btn" catchtap="toggleVoice"><text>{{isVoiceMode ? '⌨️' : '🎤'}}</text></view>
+    
+    <input 
+      wx:if="{{!isVoiceMode}}"
+      class="text-input"
+      placeholder="发消息..."
+      value="{{inputValue}}"
+      bindinput="onInput"
+      bindconfirm="sendMessage"
+      focus="{{isFocus}}"
+      adjust-position="false"  
+      hold-keyboard="true"     
+      cursor-spacing="10"
+    />
+    
+    <view wx:else class="voice-hint">按住说话</view>
+
+    <view class="send-btn" wx:if="{{!isVoiceMode && inputValue}}" catchtap="sendMessage">发送</view>
+    
+    <!-- 【新增】+ 号按钮 -->
+    <view class="plus-btn" catchtap="toggleExpandMenu">
+      <text class="icon">➕</text>
+    </view>
+  </view>
+</view>
+
+<!-- 【评论列表弹窗】 (半屏 Modal) -->
+<view class="modal-mask {{showCommentModal ? 'show' : ''}}" catchtap="closeCommentModal"></view>
+<view class="comment-modal {{showCommentModal ? 'show' : ''}}">
+  <view class="modal-header">
+    <text class="title">评论区</text>
+    <text class="close" catchtap="closeCommentModal">✕</text>
+  </view>
+  <scroll-view class="modal-body" scroll-y="true">
+    <view wx:for="{{currentComments}}" wx:key="id" class="comment-item">
+      <text class="user">{{item.user}}:</text>
+      <text class="text">{{item.content}}</text>
+    </view>
+    <view wx:if="{{currentComments.length === 0}}" class="empty-tip">暂无评论，快来抢沙发</view>
+  </scroll-view>
+  <view class="modal-footer">
+    <input class="comment-input" placeholder="写下你的评论..." bindconfirm="submitComment" confirm-type="send" />
+    <view class="submit-btn" catchtap="submitComment">发送</view>
+  </view>
+</view>
+
+<!-- 【VIP 侧滑页面】 -->
+<view class="vip-sidebar {{showVipPage ? 'show' : ''}}">
+  <view class="vip-mask" catchtap="closeVipPage"></view>
+  <view class="vip-content">
+    <view class="vip-header">
+      <text class="vip-title">至尊 VIP 会员</text>
+      <text class="vip-close" catchtap="closeVipPage">✕</text>
+    </view>
+    <view class="vip-body">
+      <view class="vip-card">
+        <text class="price">¥ 19.9 / 月</text>
+        <text class="desc">解锁无限对话、专属背景、心动指令</text>
+        <button class="buy-btn" type="warn">立即开通</button>
+      </view>
+      <view class="vip-features">
+        <text>✨ 专属 AI 角色</text>
+        <text>🚫 无广告体验</text>
+        <text>🎨 高清壁纸下载</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+</view>

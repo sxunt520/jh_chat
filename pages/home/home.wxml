@@ -1,0 +1,96 @@
+<view class="container">
+  <!-- 1. 全屏背景滑动区域 (类似猫箱的角色/场景切换) -->
+  <swiper 
+    class="background-swiper" 
+    indicator-dots="{{false}}" 
+    autoplay="{{false}}" 
+    duration="500"
+    bindchange="onSwiperChange"
+  >
+    <swiper-item wx:for="{{bgImages}}" wx:key="id">
+      <image src="{{item.url}}" mode="aspectFill" class="bg-image"></image>
+    </swiper-item>
+  </swiper>
+
+  <!-- 2. 内容覆盖层 (消息与交互按钮) -->
+  <view class="content-layer">
+    
+    <!-- 消息显示区域 -->
+    <view class="message-area {{showHistory ? 'history-mode' : ''}}">
+      <!-- 历史记录列表 (点击历史按钮时显示) -->
+      <scroll-view 
+        wx:if="{{showHistory}}" 
+        class="history-list" 
+        scroll-y="true" 
+        scroll-into-view="{{scrollToView}}"
+        scroll-with-animation="true"
+      >
+        <view wx:for="{{chatList}}" wx:key="id" id="msg-{{item.id}}" class="chat-item {{item.type}}">
+          <view class="chat-bubble {{item.isSelf ? 'self' : 'other'}}">
+            <text>{{item.content}}</text>
+          </view>
+          <view class="chat-time">{{item.time}}</view>
+        </view>
+        <view id="bottom-anchor"></view>
+      </scroll-view>
+
+      <!-- 默认单条最新消息 (非历史模式显示) -->
+      <view wx:else class="latest-message-wrapper fade-in">
+        <view class="latest-message-box">
+          <text class="latest-text">{{latestMessage.content}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 3. 互动功能按钮组 (点赞、分享、评论、历史) -->
+    <view class="action-bar">
+      <view class="action-btn" bindtap="handleAction" data-type="like">
+        <text class="icon">👍</text>
+        <text class="count">{{likes}}</text>
+      </view>
+      <view class="action-btn" bindtap="handleAction" data-type="share">
+        <text class="icon">🔗</text>
+        <text>分享</text>
+      </view>
+      <view class="action-btn" bindtap="handleAction" data-type="comment">
+        <text class="icon">💬</text>
+        <text>评论</text>
+      </view>
+      <view class="action-btn highlight {{showHistory ? 'active' : ''}}" bindtap="toggleHistory">
+        <text class="icon">🕒</text>
+        <text>{{showHistory ? '返回' : '历史'}}</text>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 4. 底部输入区域 (文字/语音) -->
+  <!-- 注意：微信小程序中，固定底部的 input 在聚焦时会自动顶起页面内容，无需额外计算高度 -->
+  <view class="input-container">
+    <view class="input-box">
+      <view class="voice-btn" bindtap="toggleVoice">
+        <text class="icon">{{isVoiceMode ? '⌨️' : '🎤'}}</text>
+      </view>
+      
+      <input 
+        wx:if="{{!isVoiceMode}}"
+        class="text-input" 
+        placeholder="发消息给猫箱..." 
+        confirm-type="send"
+        bindconfirm="sendMessage"
+        value="{{inputValue}}"
+        bindinput="onInput"
+        focus="{{focusInput}}"
+        adjust-position="true" 
+      />
+      
+      <view wx:else class="voice-hint">
+        <text>按住 说话</text>
+      </view>
+
+      <view class="send-btn" bindtap="sendMessage" wx:if="{{!isVoiceMode && inputValue.length > 0}}">
+        <text>发送</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/index/index",
     "pages/discovery/discovery",
     "pages/chat/chat",
     "pages/messages/messages",
@@ -12,11 +13,11 @@
   "tabBar": {
     "list": [
       {
-        "pagePath": "pages/discovery/discovery",
+        "pagePath": "pages/index/index",
         "text": "发现"
       },
       {
-        "pagePath": "pages/messages/messages",
+        "pagePath": "pages/discovery/discovery",
         "text": "消息"
       },
       {
