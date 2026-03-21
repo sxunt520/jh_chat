@@ -1,142 +1,388 @@
 Page({
   data: {
-    // 模拟背景图列表
-    bgImages: [
-      { id: 1, url: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&q=80' }, // 猫
-      { id: 2, url: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=800&q=80' }, // 猫
-      { id: 3, url: 'https://images.unsplash.com/photo-1495360019602-e0019216adfe?w=800&q=80' }  // 猫
-    ],
+    baseInputHeight: 55, // 基础高度
+    expandMenuHeight: 70, // 菜单高度
+    inputAreaTotalHeight: 55,
     
-    // 聊天数据
-    chatList: [
-      { id: 101, type: 'other', content: '你好呀！今天想聊点什么？', time: '10:00', isSelf: false },
-      { id: 102, type: 'self', content: '随便聊聊，给我讲个故事吧。', time: '10:01', isSelf: true },
-      { id: 103, type: 'other', content: '好的，从前有一只住在云端的猫...', time: '10:01', isSelf: false },
-      { id: 104, type: 'other', content: '它每天的任务就是收集夕阳的颜色。', time: '10:02', isSelf: false }
-    ],
-    
-    latestMessage: {}, // 当前显示的最新一条
-    showHistory: false, // 是否显示历史记录列表
-    scrollToView: '', // 滚动定位ID
-    
-    // 输入状态
-    inputValue: '',
     isVoiceMode: false,
-    focusInput: false,
-    likes: 128
+    inputValue: '',
+    isFocus: false,
+    currentPageIndex: 0,
+    
+    // 状态控制
+    showExpandMenu: false,
+    showCommentModal: false,
+    showVipPage: false,
+    showRoleDetail: false,
+    roleModalStartY: 0,
+    roleModalScrollTop: 0, // 记录滚动条位置
+    roleModalMoved: false,
+    currentComments: [],
+    currentRole: {
+      roleName: '',
+      slogan: '',
+      description: '',
+      bgUrl: '',
+      gallery: []
+    },
+    
+    // 语音状态
+    isRecording: false,
+    voiceStatus: 'normal', // normal, cancel, moving
+    voiceHint: '按住 说话',
+    startY: 0,
+    startX: 0,
+
+    pages: [
+      {
+        id: 'p1',
+        bgUrl: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/huangying_2.webp',
+        roleName: '喵喵酱',
+        slogan: '今天也要元气满满哦~',
+        description: '一只来自喵星的可爱少女，喜欢晒太阳和吃小鱼干。性格活泼开朗，偶尔有点小傲娇。',
+        gallery: [
+          'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400',
+          'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400',
+          'https://images.unsplash.com/photo-1495360019602-e0019216adfe?w=400'
+        ],
+        likes: 128,
+        showHistory: false,
+        latestMessage: { content: '你好呀！我是第一只猫。' },
+        chatList: [{ cid: 1, content: '你好呀！', time: '10:00', isSelf: false }],
+        comments: [{ id: 1, user: '用户A', content: '好可爱！' }]
+      },
+      {
+        id: 'p2',
+        bgUrl: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/tab_pic_4_new.png',
+        roleName: '暗夜猎手',
+        slogan: '黑夜是我的保护色。',
+        description: '神秘的独行侠，擅长在夜晚行动。外表冷酷，内心却有着不为人知的温柔。',
+        gallery: [
+          'https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=400',
+          'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400'
+        ],
+        likes: 85,
+        showHistory: false,
+        latestMessage: { content: '喵~' },
+        chatList: [{ cid: 1, content: '喵~', time: '11:00', isSelf: false }],
+        comments: []
+      },
+      {
+        id: 'p3',
+        bgUrl: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/tab_pic_5_new.png',
+        roleName: 'Sleepy 熊',
+        slogan: '再睡五分钟...',
+        description: '永远睡不醒的懒熊，梦想是拥有一张无限大的床。说话慢吞吞的，很有治愈感。',
+        gallery: [
+          'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'
+        ],
+        likes: 204,
+        showHistory: false,
+        latestMessage: { content: 'Zzz...' },
+        chatList: [{ cid: 1, content: 'Zzz...', time: '12:00', isSelf: false }],
+        comments: [{ id: 1, user: '夜猫子', content: '还没睡吗？' }]
+      }
+    ]
   },
 
   onLoad() {
-    this.updateLatestMessage();
+    this.setData({ inputAreaTotalHeight: this.data.baseInputHeight });
   },
 
-  // 更新最新一条消息用于默认展示
-  updateLatestMessage() {
-    const list = this.data.chatList;
-    if (list.length > 0) {
-      this.setData({
-        latestMessage: list[list.length - 1]
-      });
-    }
+  onPageChange(e) {
+    const index = e.detail.current;
+    this.setData({ 
+      currentPageIndex: index, 
+      isFocus: false, 
+      showExpandMenu: false,
+      isRecording: false,
+      voiceStatus: 'normal'
+    });
   },
 
-  // 滑动切换背景
-  onSwiperChange(e) {
-    console.log('当前背景索引:', e.detail.current);
+  // --- 角色详情 ---
+  openRoleDetail(e) {
+    const id = e.currentTarget.dataset.id;
+    const role = this.data.pages.find(p => p.id === id);
+    // 确保 role 存在才赋值，否则赋空对象
+    this.setData({ 
+      currentRole: role || { roleName: '未知角色', slogan: '', description: '', bgUrl: '', gallery: [] }, 
+      showRoleDetail: true 
+    });
   },
-
-  // 切换历史/单条模式
-  toggleHistory() {
-    const showHistory = !this.data.showHistory;
-    this.setData({ showHistory });
+  // 获取 scroll-view 的滚动位置
+  onRoleModalScroll(e) {
+    this.setData({
+      roleModalScrollTop: e.detail.scrollTop
+    });
+  },
+  onRoleModalTouchStart(e) {
+    this.setData({
+      roleModalStartY: e.touches[0].clientY,
+      roleModalMoved: false
+    });
+  },
+  onRoleModalTouchMove(e) {
+    if (!this.data.showRoleDetail) return;
     
-    if (showHistory) {
-      // 切换到历史模式，滚动到底部
-      setTimeout(() => {
-        this.setData({
-          scrollToView: 'bottom-anchor'
-        });
-      }, 100);
+    const deltaY = e.touches[0].clientY - this.data.roleModalStartY;
+    
+    // 只有向下滑 (deltaY > 0)
+    if (deltaY > 0) {
+      this.setData({ roleModalMoved: true });
+      
+      // 【关键逻辑】
+      // 如果滚动条不在顶部 (scrollTop > 0)，说明用户在浏览内容，不阻止默认滚动，也不关闭
+      if (this.data.roleModalScrollTop > 0) {
+        return; 
+      }
+      
+      // 如果在顶部，且向下滑，我们可以稍微移动一下弹窗制造跟随效果 (可选高级效果)
+      // 这里简单处理：标记为可关闭
+    }
+  },
+  onRoleModalTouchEnd(e) {
+    if (!this.data.showRoleDetail || !this.data.roleModalMoved) return;
+    
+    const deltaY = e.changedTouches[0].clientY - this.data.roleModalStartY;
+    
+    // 只有在顶部 (scrollTop === 0) 且 向下滑动超过 100px 才关闭
+    // 注意：由于微信机制，scrollTop 可能在 touch 过程中有延迟，这里做一个宽容判断
+    // 或者简单点：只要向下滑动距离很大 (比如 > 150px)，强制关闭，不管 scrollTop
+    // 为了稳妥，我们采用“大距离强制关闭”策略，避免 scrollTop 判断不准
+    
+    if (deltaY > 150) {
+      this.closeRoleDetail();
+    } else {
+      // 滑动距离不够，重置状态 (如果有跟随动画，这里复位)
+      this.setData({ roleModalMoved: false });
+    }
+  },
+  closeRoleDetail() {
+    this.setData({ showRoleDetail: false });
+  },
+
+  // --- 跳转我的 ---
+  goToMine() {
+    // 确保 app.json 中有配置 /pages/mine/mine
+    // 若未创建，可暂时用 toast 代替
+    wx.showToast({ title: '跳转到个人中心', icon: 'none' });
+    //wx.navigateTo({ url: 'pages/mine/mine' });
+  },
+
+  // --- 语音交互逻辑 ---
+  toggleVoice() {
+    this.setData({ 
+      isVoiceMode: !this.data.isVoiceMode, 
+      isFocus: false, 
+      showExpandMenu: false,
+      isRecording: false,
+      voiceStatus: 'normal',
+      voiceHint: '按住 说话'
+    });
+  },
+
+  onVoiceStart(e) {
+    if (!this.data.isVoiceMode) return;
+    const touch = e.touches[0];
+    this.setData({
+      isRecording: true,
+      voiceStatus: 'normal',
+      voiceHint: '松开 发送',
+      startY: touch.clientY,
+      startX: touch.clientX
+    });
+    // TODO: 调用 wx.getRecorderManager().start()
+  },
+
+  onVoiceMove(e) {
+    if (!this.data.isRecording) return;
+    const touch = e.touches[0];
+    const deltaY = touch.clientY - this.data.startY;
+    const deltaX = touch.clientX - this.data.startX;
+
+    // 上滑取消 (阈值 -100)
+    if (deltaY < -100) {
+      this.setData({ voiceStatus: 'cancel', voiceHint: '松开手指，取消发送' });
+    } 
+    // 左右滑动 (水平位移 > 50 且 垂直位移不大)
+    else if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 100) {
+      this.setData({ voiceStatus: 'moving', voiceHint: '松开切换文字输入' });
+    } 
+    // 回到正常区
+    else {
+      this.setData({ voiceStatus: 'normal', voiceHint: '松开 发送' });
     }
   },
 
-  // 切换语音/文字模式
-  toggleVoice() {
+  onVoiceEnd(e) {
+    if (!this.data.isRecording) return;
+    
+    const status = this.data.voiceStatus;
+    
+    if (status === 'cancel') {
+      wx.showToast({ title: '已取消', icon: 'none' });
+    } else if (status === 'moving') {
+      this.setData({ isVoiceMode: false, isFocus: true });
+      wx.showToast({ title: '已切换文字', icon: 'none' });
+    } else {
+      wx.showToast({ title: '发送语音', icon: 'success' });
+      // TODO: 调用 stop 并上传
+    }
+
     this.setData({
-      isVoiceMode: !this.data.isVoiceMode,
-      focusInput: false // 切换时取消聚焦
+      isRecording: false,
+      voiceStatus: 'normal',
+      voiceHint: '按住 说话'
     });
   },
 
-  // 输入框内容变化
-  onInput(e) {
-    this.setData({
-      inputValue: e.detail.value
+  // --- 其他功能 ---
+  openCommentModal(e) {
+    const id = e.currentTarget.dataset.id;
+    const page = this.data.pages.find(p => p.id === id);
+    this.setData({ 
+      currentComments: page.comments || [], 
+      currentCommentPageId: id, // 记录当前评论的是哪个角色
+      commentInputValue: '',    // 清空输入框
+      showCommentModal: true, 
+      showExpandMenu: false 
     });
   },
+  // 修正 onCommentInput (需要在 WXML 绑定 bindinput)
+  onCommentInput(e) {
+    this.setData({ commentInputValue: e.detail.value });
+  },
+  closeCommentModal() { this.setData({ showCommentModal: false }); },
+  
+  // submitComment() {
+  //   // 模拟发送
+  //   const newC = { id: Date.now(), user: '我', content: '新评论' };
+  //   const idx = this.data.pages.findIndex(p => p.id === this.data.currentComments[0]?.id || this.data.pages[0].id); // 简单模拟
+  //   // 实际应根据 currentCommentPageId 查找，这里简化处理
+  //   wx.showToast({ title: '发送成功', icon: 'none' });
+  //   this.closeCommentModal();
+  // },
 
-  // 发送消息
-  sendMessage() {
-    const text = this.data.inputValue.trim();
-    if (!text) return;
+  // --- 【改动点 4】评论提交逻辑修复 ---
+  //submitComment() {
+    // 获取当前正在评论的角色ID (需要从 currentComments 或者单独存一个 currentCommentPageId)
+    // 为了简单，我们假设 currentComments 是属于当前页面的，或者我们需要在 openCommentModal 时记录 pageId
+    
+    // 更好的方式：在 data 中增加一个 currentCommentPageId
+    // 这里我们遍历 pages 找到那个 comments 数组被引用的页面 (因为之前是直接赋值的引用，修改原数组可能有效，但为了稳妥建议重新 setData)
+    
+  //  const inputVal = this.data.inputValue; // 注意：评论输入框可能用的是另一个变量，检查 WXML
+    // 检查 WXML: <input class="c-input" ... /> 这里好像没绑 value! 
+    // 我们需要在 data 里加一个 commentInputValue
+  //},
+  // 修正：需要在 data 中添加 commentInputValue
+  // data: { ..., commentInputValue: '', currentCommentPageId: null }
 
-    const newMsg = {
+  // 最终修正的 submitComment
+  submitComment() {
+    const content = this.data.commentInputValue.trim();
+    const pageId = this.data.currentCommentPageId;
+    
+    if (!content || !pageId) {
+      wx.showToast({ title: '请输入内容', icon: 'none' });
+      return;
+    }
+
+    const newComment = {
       id: Date.now(),
-      type: 'self',
-      content: text,
-      time: this.getCurrentTime(),
-      isSelf: true
+      user: '我',
+      content: content
     };
 
-    const newChatList = [...this.data.chatList, newMsg];
+    // 1. 更新 pages 数组中的数据
+    const newPages = [...this.data.pages];
+    const pageIndex = newPages.findIndex(p => p.id === pageId);
     
-    // 模拟回复
-    setTimeout(() => {
-      const replyMsg = {
-        id: Date.now() + 1,
-        type: 'other',
-        content: '收到你的消息了："'+ text +'"，很有趣！',
-        time: this.getCurrentTime(),
-        isSelf: false
-      };
-      this.setData({
-        chatList: [...newChatList, replyMsg]
-      });
-      this.updateLatestMessage();
-      if(this.data.showHistory) {
-         this.setData({ scrollToView: 'bottom-anchor' });
+    if (pageIndex !== -1) {
+      // 确保 comments 数组存在
+      if (!newPages[pageIndex].comments) {
+        newPages[pageIndex].comments = [];
       }
-    }, 1000);
+      // 追加新评论
+      newPages[pageIndex].comments.push(newComment);
+      
+      // 2. 更新当前显示的评论列表 (立即看到效果)
+      const newCurrentComments = [...newPages[pageIndex].comments];
 
-    this.setData({
-      chatList: newChatList,
-      inputValue: '',
-      focusInput: false
-    });
-    
-    this.updateLatestMessage();
-    
-    // 如果当前在历史模式，自动滚动到底部
-    if (this.data.showHistory) {
-      this.setData({ scrollToView: 'bottom-anchor' });
+      this.setData({
+        pages: newPages,
+        currentComments: newCurrentComments,
+        commentInputValue: '', // 清空输入框
+        showCommentModal: false // 可选：发送后自动关闭，或者保留让用户继续发
+      });
+      
+      wx.showToast({ title: '评论成功', icon: 'success' });
     }
   },
 
-  // 按钮点击处理
-  handleAction(e) {
-    const type = e.currentTarget.dataset.type;
-    if (type === 'like') {
-      this.setData({ likes: this.data.likes + 1 });
-      wx.showToast({ title: '已点赞', icon: 'none' });
-    } else if (type === 'share') {
-      wx.showToast({ title: '分享面板开发中', icon: 'none' });
-    } else if (type === 'comment') {
-      this.setData({ focusInput: true }); // 点击评论直接聚焦输入框
-    }
+  toggleExpandMenu() {
+    const show = !this.data.showExpandMenu;
+    const h = show ? (this.data.baseInputHeight + this.data.expandMenuHeight) : this.data.baseInputHeight;
+    this.setData({ showExpandMenu: show, inputAreaTotalHeight: h });
+  },
+  handleSendImage() { wx.chooseMedia({count:1, mediaType:['image'], success:()=>{this.toggleExpandMenu()}}); },
+  handleHeartCommand() { wx.showToast({title:'心动指令❤️'}); this.toggleExpandMenu(); },
+  
+  openVipPage() { this.setData({ showVipPage: true, showExpandMenu: false }); },
+  closeVipPage() { this.setData({ showVipPage: false }); },
+
+  onInput(e) { this.setData({ inputValue: e.detail.value }); },
+  
+  sendMessage() {
+    if (!this.data.inputValue.trim()) return;
+    const idx = this.data.currentPageIndex;
+    const newPages = [...this.data.pages];
+    const msg = { cid: Date.now(), content: this.data.inputValue, time: 'Now', isSelf: true };
+    newPages[idx].chatList.push(msg);
+    newPages[idx].latestMessage = msg;
+    this.setData({ pages: newPages, inputValue: '', isFocus: false });
   },
 
-  getCurrentTime() {
-    const now = new Date();
-    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-  }
+  handleLike(e) {
+    const id = e.currentTarget.dataset.id;
+    const idx = this.data.pages.findIndex(p => p.id === id);
+    if(idx !== -1) {
+      const newPages = [...this.data.pages];
+      newPages[idx].likes++;
+      this.setData({ pages: newPages });
+    }
+  },
+  handleShare() { wx.showToast({title: '分享'}); },
+  
+  toggleHistory(e) {
+    const id = e.currentTarget.dataset.id;
+    const idx = this.data.pages.findIndex(p => p.id === id);
+    
+    if(idx !== -1) {
+      const newPages = [...this.data.pages];
+      const p = newPages[idx];
+      
+      // 切换状态
+      p.showHistory = !p.showHistory;
+      
+      // 【关键】如果开启历史记录，设置滚动锚点到底部
+      if(p.showHistory) {
+        // 确保 chatList 有数据，且锚点ID存在
+        // 这里的 anchor-id 必须和 wxml 中的 <view id="anchor-{{item.id}}"></view> 对应
+        p.scrollToView = `anchor-${p.id}`;
+        
+        // 强制更新一下，确保 scroll-view 渲染出来后再滚动
+        this.setData({ pages: newPages }, () => {
+          // 延迟一小会儿确保 DOM 更新
+          setTimeout(() => {
+            // 如果需要更精准的底部滚动，可以在这里再次触发，但通常 scroll-into-view 足够
+          }, 100);
+        });
+      } else {
+        // 关闭历史记录，不需要特殊操作，swtich wx:if 会自动隐藏
+        this.setData({ pages: newPages });
+      }
+    }
+  },
 });

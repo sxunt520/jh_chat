@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/home/home",
     "pages/discovery/discovery",
     "pages/chat/chat",
     "pages/messages/messages",
@@ -13,7 +14,7 @@
   "tabBar": {
     "list": [
       {
-        "pagePath": "pages/index/index",
+        "pagePath": "pages/home/home",
         "text": "发现"
       },
       {
@@ -21,8 +22,8 @@
         "text": "消息"
       },
       {
-        "pagePath": "pages/moments/moments",
-        "text": "朋友圈"
+        "pagePath": "pages/index/index",
+        "text": "主页"
       },
       {
         "pagePath": "pages/mine/mine",

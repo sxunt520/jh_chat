@@ -1,96 +1,246 @@
 <view class="container">
-  <!-- 1. 全屏背景滑动区域 (类似猫箱的角色/场景切换) -->
-  <swiper 
-    class="background-swiper" 
-    indicator-dots="{{false}}" 
-    autoplay="{{false}}" 
-    duration="500"
-    bindchange="onSwiperChange"
-  >
-    <swiper-item wx:for="{{bgImages}}" wx:key="id">
-      <image src="{{item.url}}" mode="aspectFill" class="bg-image"></image>
-    </swiper-item>
-  </swiper>
-
-  <!-- 2. 内容覆盖层 (消息与交互按钮) -->
-  <view class="content-layer">
-    
-    <!-- 消息显示区域 -->
-    <view class="message-area {{showHistory ? 'history-mode' : ''}}">
-      <!-- 历史记录列表 (点击历史按钮时显示) -->
-      <scroll-view 
-        wx:if="{{showHistory}}" 
-        class="history-list" 
-        scroll-y="true" 
-        scroll-into-view="{{scrollToView}}"
-        scroll-with-animation="true"
-      >
-        <view wx:for="{{chatList}}" wx:key="id" id="msg-{{item.id}}" class="chat-item {{item.type}}">
-          <view class="chat-bubble {{item.isSelf ? 'self' : 'other'}}">
-            <text>{{item.content}}</text>
-          </view>
-          <view class="chat-time">{{item.time}}</view>
-        </view>
-        <view id="bottom-anchor"></view>
-      </scroll-view>
-
-      <!-- 默认单条最新消息 (非历史模式显示) -->
-      <view wx:else class="latest-message-wrapper fade-in">
-        <view class="latest-message-box">
-          <text class="latest-text">{{latestMessage.content}}</text>
-        </view>
-      </view>
+  
+  <!-- 顶部 VIP 入口 -->
+  <view class="top-bar">
+    <view class="diamond-btn" catchtap="openVipPage">
+      <text class="icon">💎</text>
+      <text class="label">VIP</text>
     </view>
-
-    <!-- 3. 互动功能按钮组 (点赞、分享、评论、历史) -->
-    <view class="action-bar">
-      <view class="action-btn" bindtap="handleAction" data-type="like">
-        <text class="icon">👍</text>
-        <text class="count">{{likes}}</text>
-      </view>
-      <view class="action-btn" bindtap="handleAction" data-type="share">
-        <text class="icon">🔗</text>
-        <text>分享</text>
-      </view>
-      <view class="action-btn" bindtap="handleAction" data-type="comment">
-        <text class="icon">💬</text>
-        <text>评论</text>
-      </view>
-      <view class="action-btn highlight {{showHistory ? 'active' : ''}}" bindtap="toggleHistory">
-        <text class="icon">🕒</text>
-        <text>{{showHistory ? '返回' : '历史'}}</text>
-      </view>
-    </view>
-
   </view>
 
-  <!-- 4. 底部输入区域 (文字/语音) -->
-  <!-- 注意：微信小程序中，固定底部的 input 在聚焦时会自动顶起页面内容，无需额外计算高度 -->
-  <view class="input-container">
-    <view class="input-box">
-      <view class="voice-btn" bindtap="toggleVoice">
-        <text class="icon">{{isVoiceMode ? '⌨️' : '🎤'}}</text>
+  <!-- 核心内容区 (使用 flex:1 自动占满剩余空间) -->
+  <view class="main-content">
+    <swiper 
+      class="main-swiper" 
+      indicator-dots="{{false}}" 
+      vertical="{{true}}" 
+      duration="400"
+      bindchange="onPageChange"
+    >
+      <swiper-item wx:for="{{pages}}" wx:key="id">
+        <view class="page-item">
+          <!-- 背景图：绝对定位全屏 -->
+          <image src="{{item.bgUrl}}" mode="aspectFill" class="full-bg" />
+          <view class="bg-mask"></view>
+
+          <!-- 内容层 -->
+          <view class="page-layer">
+            
+            <!-- 左侧角色信息 (绝对定位左下角) -->
+            <view class="role-info-box" catchtap="openRoleDetail" data-id="{{item.id}}">
+              <text class="r-name">{{item.roleName}}</text>
+              <text class="r-slogan">{{item.slogan}}</text>
+            </view>
+
+            <!-- 右侧操作按钮 (绝对定位右下角) -->
+            <view class="action-box">
+              
+              <view class="a-btn {{item.showHistory ? 'active' : ''}}" catchtap="toggleHistory" data-id="{{item.id}}">
+                <text class="icon">🕒</text>
+                <text class="num">{{item.showHistory ? '返回' : '历史'}}</text>
+              </view>
+              <view class="a-btn" catchtap="handleLike" data-id="{{item.id}}">
+                <text class="icon">👍</text>
+                <text class="num">{{item.likes}}</text>
+              </view>
+              <view class="a-btn" catchtap="handleShare" data-id="{{item.id}}">
+                <text class="icon">🔗</text>
+                <text class="num">分享</text>
+              </view>
+              <view class="a-btn" catchtap="openCommentModal" data-id="{{item.id}}">
+                <text class="icon">💬</text>
+                <text class="num">评论</text>
+              </view>
+            </view>
+
+            <!-- 消息区域 -->
+            <view class="message-zone {{item.showHistory ? 'history-mode' : ''}}">
+              
+              <!-- 历史列表模式 -->
+              <scroll-view 
+                wx:if="{{item.showHistory}}" 
+                class="history-list" 
+                scroll-y="true" 
+                scroll-into-view="{{item.scrollToView}}" 
+                scroll-with-animation="true"
+                enable-flex="true" 
+              >
+                <!-- 【改动点 2】每条消息增加头像和昵称 -->
+                <view wx:for="{{item.chatList}}" wx:key="cid" id="msg-{{item.id}}-{{cid}}" class="chat-item {{c.isSelf ? 'self' : 'other'}}" wx:for-item="c">
+                  
+                  <!-- 左侧/右侧 头像容器 -->
+                  <view class="msg-avatar-box {{c.isSelf ? 'order-self' : 'order-other'}}">
+                    <!-- 如果是自己，显示用户头像；如果是角色，显示角色相关图或默认图 -->
+                    <image 
+                      src="{{c.isSelf ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100' : item.bgUrl}}" 
+                      class="msg-avatar" 
+                      mode="aspectFill"
+                    />
+                    <text class="msg-name">{{c.isSelf ? '我' : item.roleName}}</text>
+                  </view>
+
+                  <!-- 气泡内容 -->
+                  <view class="bubble-container {{c.isSelf ? 'container-self' : 'container-other'}}">
+                    <view class="bubble {{c.isSelf ? 'bubble-self' : 'bubble-other'}}">{{c.content}}</view>
+                    <view class="time">{{c.time}}</view>
+                  </view>
+                </view>
+                
+                <!-- 底部锚点 -->
+                <view id="anchor-{{item.id}}" style="height: 1rpx; width: 100%;"></view>
+              </scroll-view>
+              
+              <!-- 【改动点 1】最新一条气泡：点击事件改为 toggleHistory -->
+              <view 
+                wx:else 
+                class="latest-bubble" 
+                catchtap="toggleHistory" 
+                data-id="{{item.id}}"
+              >
+                <text>{{item.latestMessage.content}}</text>
+                <text class="hint">点击查看历史记录</text>
+              </view>
+            </view>
+
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <!-- 底部固定输入区 (独立于 Swiper，不会变形) -->
+  <view class="fixed-input-area" style="height: {{inputAreaTotalHeight}}px;">
+    
+    <!-- 扩展菜单 -->
+    <view class="expand-menu {{showExpandMenu ? 'show' : ''}}">
+      <view class="m-item" catchtap="handleSendImage"><view class="m-icon bg-b">🖼️</view><text>图片</text></view>
+      <view class="m-item" catchtap="handleHeartCommand"><view class="m-icon bg-p">❤️</view><text>心动指令</text></view>
+    </view>
+
+    <!-- 输入条主体 -->
+    <view class="input-row">
+      <!-- 用户头像 -->
+      <view class="u-avatar" catchtap="goToMine">
+        <image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" mode="aspectFill" />
       </view>
-      
+
+      <!-- 语音切换 -->
+      <view class="voice-toggle" catchtap="toggleVoice">
+        <text>{{isVoiceMode ? '⌨️' : '🎤'}}</text>
+      </view>
+
+      <!-- 文字输入框 -->
       <input 
         wx:if="{{!isVoiceMode}}"
-        class="text-input" 
-        placeholder="发消息给猫箱..." 
-        confirm-type="send"
-        bindconfirm="sendMessage"
+        class="txt-input"
+        placeholder="发消息..."
         value="{{inputValue}}"
         bindinput="onInput"
-        focus="{{focusInput}}"
-        adjust-position="true" 
+        bindconfirm="sendMessage"
+        focus="{{isFocus}}"
+        adjust-position="false"
+        hold-keyboard="true"
+        cursor-spacing="10"
       />
-      
-      <view wx:else class="voice-hint">
-        <text>按住 说话</text>
+
+      <!-- 语音输入框 (核心修复) -->
+      <view 
+        wx:else 
+        class="voice-box {{voiceStatus === 'cancel' ? 'v-cancel' : (voiceStatus === 'moving' ? 'v-move' : '')}}"
+        bindtouchstart="onVoiceStart"
+        bindtouchmove="onVoiceMove"
+        bindtouchend="onVoiceEnd"
+        bindtouchcancel="onVoiceEnd"
+      >
+        <view class="wave-container {{isRecording ? 'active' : ''}}">
+          <view class="dot d1"></view><view class="dot d2"></view><view class="dot d3"></view>
+        </view>
+        <text class="v-text">{{voiceHint}}</text>
       </view>
 
-      <view class="send-btn" bindtap="sendMessage" wx:if="{{!isVoiceMode && inputValue.length > 0}}">
-        <text>发送</text>
+      <!-- 发送按钮 -->
+      <view wx:if="{{!isVoiceMode && inputValue}}" class="send-btn" catchtap="sendMessage">发送</view>
+
+      <!-- +号 -->
+      <view class="plus-btn" catchtap="toggleExpandMenu">
+        <text class="icon">➕</text>
+      </view>
+    </view>
+    
+    <!-- 语音操作提示浮层 -->
+    <view wx:if="{{isRecording}}" class="voice-tip-float">
+      <text>↑ 上移取消</text>
+      <text class="div">|</text>
+      <text>↔ 左/右滑切文字</text>
+    </view>
+  </view>
+
+  <!-- 弹窗：评论 -->
+  <view class="modal-mask {{showCommentModal ? 'show' : ''}}" catchtap="closeCommentModal"></view>
+  <view class="comment-modal {{showCommentModal ? 'show' : ''}}">
+    <view class="cm-header"><text class="title">评论</text><text class="close" catchtap="closeCommentModal">✕</text></view>
+    <scroll-view class="cm-body" scroll-y="true">
+      <view wx:for="{{currentComments}}" wx:key="id" class="c-item"><text class="u">{{item.user}}:</text><text>{{item.content}}</text></view>
+      <view wx:if="{{currentComments.length===0}}" class="empty">暂无评论</view>
+    </scroll-view>
+    <view class="cm-footer">
+      <input 
+        class="c-input" 
+        placeholder="说点什么..." 
+        value="{{commentInputValue}}"
+        bindinput="onCommentInput"
+        bindconfirm="submitComment" 
+        confirm-type="send"
+      />
+      <view class="c-btn" catchtap="submitComment">发送</view>
+    </view>
+  </view>
+
+  <!-- 角色详情弹窗 -->
+  <!-- 【修改点】添加 bindtouchstart, bindtouchmove, bindtouchend -->
+  <view 
+    class="role-modal {{showRoleDetail ? 'show' : ''}}"
+    bindtouchstart="onRoleModalTouchStart"
+    bindtouchmove="onRoleModalTouchMove"
+    bindtouchend="onRoleModalTouchEnd"
+  >
+    <!-- 头部区域 (专门用于拖拽的敏感区) -->
+    <view class="rm-header">
+      <view class="ph"></view>
+      <text class="title">{{currentRole && currentRole.roleName}}</text>
+      <view class="close-x" catchtap="closeRoleDetail">✕</view>
+    </view>
+    
+    <scroll-view class="rm-body" scroll-y="true" enhanced="true" bindscroll="onRoleModalScroll" >
+      <!-- 内容不变 -->
+      <view class="rm-profile">
+        <image src="{{currentRole && currentRole.bgUrl}}" class="rp-img" mode="aspectFill"/>
+        <text class="rp-name">{{currentRole && currentRole.roleName}}</text>
+        <text class="rp-slogan">{{currentRole && currentRole.slogan}}</text>
+        <text class="rp-desc">{{currentRole && currentRole.description}}</text>
+      </view>
+      <view class="rm-gallery">
+        <text class="sec-title">相册</text>
+        <swiper class="g-swiper" indicator-dots circular autoplay wx:if="{{currentRole && currentRole.gallery.length > 0}}">
+          <swiper-item wx:for="{{currentRole.gallery}}" wx:key="*this">
+            <image src="{{item}}" class="g-img" mode="aspectFill"/>
+          </swiper-item>
+        </swiper>
+        <view wx:else class="empty-gallery" style="padding:20rpx; color:#666; text-align:center;">暂无相册</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 侧滑：VIP -->
+  <view class="vip-sidebar {{showVipPage ? 'show' : ''}}">
+    <view class="vip-mask" catchtap="closeVipPage"></view>
+    <view class="vip-panel">
+      <view class="vp-h"><text class="vp-t">VIP 会员</text><text class="vp-c" catchtap="closeVipPage">✕</text></view>
+      <view class="vp-card">
+        <text class="price">¥19.9/月</text>
+        <button class="buy-btn">立即开通</button>
       </view>
     </view>
   </view>
+
 </view>
