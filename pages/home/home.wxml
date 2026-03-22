@@ -28,7 +28,7 @@
             
             <!-- 左侧角色信息 (绝对定位左下角) -->
             <view class="role-info-box" catchtap="openRoleDetail" data-id="{{item.id}}">
-              <text class="r-name">{{item.roleName}}</text>
+              <text class="r-name">{{item.roleName}} {{ '>'}} </text>
               <text class="r-slogan">{{item.slogan}}</text>
             </view>
 
@@ -72,7 +72,7 @@
                   <view class="msg-avatar-box {{c.isSelf ? 'order-self' : 'order-other'}}">
                     <!-- 如果是自己，显示用户头像；如果是角色，显示角色相关图或默认图 -->
                     <image 
-                      src="{{c.isSelf ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100' : item.bgUrl}}" 
+                      src="{{c.isSelf ? userInfo.picture_url : item.bgUrl}}" 
                       class="msg-avatar" 
                       mode="aspectFill"
                     />
@@ -108,7 +108,8 @@
   </view>
 
   <!-- 底部固定输入区 (独立于 Swiper，不会变形) -->
-  <view class="fixed-input-area" style="height: {{inputAreaTotalHeight}}px;">
+  <!-- <view class="fixed-input-area" style="height: {{inputAreaTotalHeight}}px;"> -->
+    <view class="fixed-input-area" style="height: auto;">
     
     <!-- 扩展菜单 -->
     <view class="expand-menu {{showExpandMenu ? 'show' : ''}}">
@@ -120,7 +121,8 @@
     <view class="input-row">
       <!-- 用户头像 -->
       <view class="u-avatar" catchtap="goToMine">
-        <image src="http://thirdqq.qlogo.cn/g?b=oidb&k=XsiceqD3xs3DQ14Isc1OIAw&s=640&t=1555309083" mode="aspectFill" />
+        <!-- <image src="http://thirdqq.qlogo.cn/g?b=oidb&k=XsiceqD3xs3DQ14Isc1OIAw&s=640&t=1555309083" mode="aspectFill" /> -->
+        <image src="{{userInfo.picture_url}}" mode="aspectFill" />
       </view>
 
       <!-- 语音切换 -->

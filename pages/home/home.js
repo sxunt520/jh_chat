@@ -3,6 +3,7 @@ Page({
     baseInputHeight: 55, // 基础高度
     expandMenuHeight: 70, // 菜单高度
     inputAreaTotalHeight: 55,
+    userInfo: null,
     
     isVoiceMode: false,
     inputValue: '',
@@ -87,6 +88,8 @@ Page({
 
   onLoad() {
     this.setData({ inputAreaTotalHeight: this.data.baseInputHeight });
+    const userInfo = wx.getStorageSync('userInfo');
+    this.setData({ userInfo });
   },
 
   onPageChange(e) {
