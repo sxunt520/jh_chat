@@ -37,13 +37,13 @@ Page({
       {
         id: 'p1',
         bgUrl: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/huangying_2.webp',
-        roleName: '喵喵酱',
-        slogan: '今天也要元气满满哦~',
+        roleName: '黄樱',
+        slogan: '水月停轩',
         description: '一只来自喵星的可爱少女，喜欢晒太阳和吃小鱼干。性格活泼开朗，偶尔有点小傲娇。',
         gallery: [
-          'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400',
-          'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400',
-          'https://images.unsplash.com/photo-1495360019602-e0019216adfe?w=400'
+          'http://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/img_static/20250923/68d23e5c2f12c.jpg',
+          'http://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/img_static/20250520/682c479cbd451.jpg',
+          'http://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/img_static/20250923/68d23e5c2f12c.jpg'
         ],
         likes: 128,
         showHistory: false,
@@ -54,12 +54,12 @@ Page({
       {
         id: 'p2',
         bgUrl: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/tab_pic_4_new.png',
-        roleName: '暗夜猎手',
-        slogan: '黑夜是我的保护色。',
+        roleName: '上官妙语',
+        slogan: '白马王朝',
         description: '神秘的独行侠，擅长在夜晚行动。外表冷酷，内心却有着不为人知的温柔。',
         gallery: [
-          'https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=400',
-          'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400'
+          'http://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/img_static/20250923/68d23e5c2f12c.jpg',
+          'http://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/img_static/20250520/682c479cbd451.jpg'
         ],
         likes: 85,
         showHistory: false,
@@ -70,11 +70,11 @@ Page({
       {
         id: 'p3',
         bgUrl: 'https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/site_video/jh/dj/tab_pic_5_new.png',
-        roleName: 'Sleepy 熊',
-        slogan: '再睡五分钟...',
+        roleName: '许缁衣',
+        slogan: '水月停轩',
         description: '永远睡不醒的懒熊，梦想是拥有一张无限大的床。说话慢吞吞的，很有治愈感。',
         gallery: [
-          'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'
+          'http://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/img_static/20250923/68d23e5c2f12c.jpg'
         ],
         likes: 204,
         showHistory: false,
@@ -103,12 +103,16 @@ Page({
   // --- 角色详情 ---
   openRoleDetail(e) {
     const id = e.currentTarget.dataset.id;
-    const role = this.data.pages.find(p => p.id === id);
+    const role = this.data.pages.find(p => p.id === id);//去data.pages里找角色详情
+
+    //或者 请求接口获取详情
+
     // 确保 role 存在才赋值，否则赋空对象
     this.setData({ 
       currentRole: role || { roleName: '未知角色', slogan: '', description: '', bgUrl: '', gallery: [] }, 
       showRoleDetail: true 
     });
+
   },
   // 获取 scroll-view 的滚动位置
   onRoleModalScroll(e) {
@@ -166,7 +170,7 @@ Page({
   goToMine() {
     // 确保 app.json 中有配置 /pages/mine/mine
     // 若未创建，可暂时用 toast 代替
-    wx.showToast({ title: '跳转到个人中心', icon: 'none' });
+    wx.showToast({ title: '开发中...', icon: 'none' });
     //wx.navigateTo({ url: 'pages/mine/mine' });
   },
 
@@ -342,6 +346,9 @@ Page({
     newPages[idx].chatList.push(msg);
     newPages[idx].latestMessage = msg;
     this.setData({ pages: newPages, inputValue: '', isFocus: false });
+    
+    //请求接口返回ai回复
+    
   },
 
   handleLike(e) {

@@ -117,6 +117,7 @@
 <!-- 【VIP 侧滑页面】 -->
 <view class="vip-sidebar {{showVipPage ? 'show' : ''}}">
   <view class="vip-mask" catchtap="closeVipPage"></view>
+  
   <view class="vip-content">
     <view class="vip-header">
       <text class="vip-title">至尊 VIP 会员</text>
@@ -135,6 +136,7 @@
       </view>
     </view>
   </view>
+  
 </view>
 
 </view>

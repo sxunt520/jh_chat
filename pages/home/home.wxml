@@ -4,7 +4,7 @@
   <view class="top-bar">
     <view class="diamond-btn" catchtap="openVipPage">
       <text class="icon">💎</text>
-      <text class="label">VIP</text>
+      <!-- <text class="label">VIP</text> -->
     </view>
   </view>
 
@@ -65,7 +65,7 @@
                 scroll-with-animation="true"
                 enable-flex="true" 
               >
-                <!-- 【改动点 2】每条消息增加头像和昵称 -->
+                <!--每条消息 -->
                 <view wx:for="{{item.chatList}}" wx:key="cid" id="msg-{{item.id}}-{{cid}}" class="chat-item {{c.isSelf ? 'self' : 'other'}}" wx:for-item="c">
                   
                   <!-- 左侧/右侧 头像容器 -->
@@ -90,7 +90,6 @@
                 <view id="anchor-{{item.id}}" style="height: 1rpx; width: 100%;"></view>
               </scroll-view>
               
-              <!-- 【改动点 1】最新一条气泡：点击事件改为 toggleHistory -->
               <view 
                 wx:else 
                 class="latest-bubble" 
@@ -121,7 +120,7 @@
     <view class="input-row">
       <!-- 用户头像 -->
       <view class="u-avatar" catchtap="goToMine">
-        <image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" mode="aspectFill" />
+        <image src="http://thirdqq.qlogo.cn/g?b=oidb&k=XsiceqD3xs3DQ14Isc1OIAw&s=640&t=1555309083" mode="aspectFill" />
       </view>
 
       <!-- 语音切换 -->
@@ -143,7 +142,7 @@
         cursor-spacing="10"
       />
 
-      <!-- 语音输入框 (核心修复) -->
+      <!-- 语音输入框 -->
       <view 
         wx:else 
         class="voice-box {{voiceStatus === 'cancel' ? 'v-cancel' : (voiceStatus === 'moving' ? 'v-move' : '')}}"
@@ -197,7 +196,6 @@
   </view>
 
   <!-- 角色详情弹窗 -->
-  <!-- 【修改点】添加 bindtouchstart, bindtouchmove, bindtouchend -->
   <view 
     class="role-modal {{showRoleDetail ? 'show' : ''}}"
     bindtouchstart="onRoleModalTouchStart"
@@ -233,14 +231,40 @@
 
   <!-- 侧滑：VIP -->
   <view class="vip-sidebar {{showVipPage ? 'show' : ''}}">
+    
     <view class="vip-mask" catchtap="closeVipPage"></view>
-    <view class="vip-panel">
-      <view class="vp-h"><text class="vp-t">VIP 会员</text><text class="vp-c" catchtap="closeVipPage">✕</text></view>
+    
+    <!-- <view class="vip-panel">
+      <view class="vp-h">
+      <text class="vp-t">VIP 会员</text>
+      <text class="vp-c" catchtap="closeVipPage">✕</text>
+    </view>
+
       <view class="vp-card">
         <text class="price">¥19.9/月</text>
         <button class="buy-btn">立即开通</button>
       </view>
+    </view> -->
+
+    <view class="vip-content">
+      <view class="vip-header">
+        <text class="vip-title">至尊 VIP 会员</text>
+        <text class="vip-close" catchtap="closeVipPage">✕</text>
+      </view>
+      <view class="vip-body">
+        <view class="vip-card">
+          <text class="price">¥ 19.9 / 月</text>
+          <text class="desc">解锁无限对话、专属背景、心动指令</text>
+          <button class="buy-btn" type="warn">立即开通</button>
+        </view>
+        <view class="vip-features">
+          <text>✨ 专属 AI 角色</text>
+          <text>🚫 无广告体验</text>
+          <text>🎨 高清壁纸下载</text>
+        </view>
+      </view>
     </view>
+
   </view>
 
 </view>
