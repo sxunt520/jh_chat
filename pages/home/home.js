@@ -90,6 +90,27 @@ Page({
     this.setData({ inputAreaTotalHeight: this.data.baseInputHeight });
     const userInfo = wx.getStorageSync('userInfo');
     this.setData({ userInfo });
+
+    //加载角色pages
+    wx.request({
+      url: "https://dj.awsl8.com/v1/chat/ai-home", // 获取角色列表
+      method: 'post',
+      data: {
+        page: 1,
+        pagenum: 1,
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Token':wx.getStorageSync('Token')
+      },
+      success: (res) => {
+        console.log(res);
+        if (res.data.status==0 && res.data.data) {
+          this.setData({ pages: res.data.data});
+        }
+      }
+    });
+
   },
 
   onPageChange(e) {
@@ -344,13 +365,59 @@ Page({
   sendMessage() {
     if (!this.data.inputValue.trim()) return;
     const idx = this.data.currentPageIndex;
+    const roleId=this.data.pages[idx].id;
+    const push_content=this.data.inputValue;
     const newPages = [...this.data.pages];
+
+    //自己聊天内容先推上去
     const msg = { cid: Date.now(), content: this.data.inputValue, time: 'Now', isSelf: true };
     newPages[idx].chatList.push(msg);
     newPages[idx].latestMessage = msg;
-    this.setData({ pages: newPages, inputValue: '', isFocus: false });
-    
+    this.setData({ pages: newPages, inputValue: '', isFocus: false });//清除表单数据、失去焦点
+
     //请求接口返回ai回复
+    wx.request({
+      url: "https://dj.awsl8.com/v1/chat/send-message3",
+      method: "POST",
+      data: {
+        roleId: roleId,
+        content: push_content
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Token':wx.getStorageSync('Token')
+      },
+      success: (res) => {
+        console.log('发送聊天2:', res.data.data);
+        if (res.data.status==0 && res.data.data) {
+
+          //Ai回复的内容在推上去
+          const msg = { cid: res.data.data.cid, content: res.data.data.content, time: res.data.data.time, isSelf: false };
+          newPages[idx].chatList.push(msg);
+          newPages[idx].latestMessage = msg;
+          this.setData({ pages: newPages, inputValue: '', isFocus: false });
+
+          // fetchStream(res.data.data.message.content.data, {
+          //   success(result) {
+          //     // 生文中
+          //     if (!that.data.loading) return;
+          //     that.setData({
+          //       'chatList[0].status': 'streaming',
+          //       'chatList[0].message.content[0].data': that.data.chatList[0].message.content[0].data + result,
+          //     });
+          //   },
+          //   complete() {
+          //     that.setData({
+          //       'chatList[0].status': 'complete',
+          //       loading: false,
+          //     });
+          //   },
+          // });
+
+        }
+
+      }
+    });
     
   },
 

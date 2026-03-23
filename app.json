@@ -1,9 +1,10 @@
 {
   "pages": [
+    "pages/logo/logo",
     "pages/home/home",
-    "pages/index/index",
     "pages/discovery/discovery",
     "pages/chat/chat",
+    "pages/index/index",
     "pages/messages/messages",
     "pages/moments/moments",
     "pages/mine/mine"
