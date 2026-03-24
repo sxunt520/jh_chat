@@ -4,13 +4,12 @@
     "pages/home/home",
     "pages/discovery/discovery",
     "pages/chat/chat",
-    "pages/index/index",
     "pages/messages/messages",
     "pages/moments/moments",
     "pages/mine/mine"
   ],
   "window": {
-    "navigationBarTitleText": "枕边江湖-陪聊你的每一个夜晚"
+    "navigationBarTitleText": "枕边江湖-陪伴你的每一个夜晚"
   },
   "tabBar": {
     "list": [
@@ -27,7 +26,7 @@
         "selectedIconPath": "assets/icons/comment.png"
       },
       {
-        "pagePath": "pages/index/index",
+        "pagePath": "pages/moments/moments",
         "text": "发现",
         "iconPath": "assets/icons/views_gray.png",
         "selectedIconPath": "assets/icons/views_gray.png"

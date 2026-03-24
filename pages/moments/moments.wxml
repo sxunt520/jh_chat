@@ -1,5 +1,17 @@
-<view class="moments-page">
+<!-- <view class="moments-page">
   <block wx:for="{{moments}}" wx:key="id">
     <moment-card moment="{{item}}" />
   </block>
-</view>
+</view> -->
+
+<view class="container">
+  <view style="width: 100%;">
+      <swiper indicator-dots autoplay circular>
+        <block wx:for="{{moments}}" wx:key="id">
+          <swiper-item bindtap="jumpurl" data-jumpurl="{{item.id}}">
+            <image src="{{item.images}}" mode="aspectFill" class="carousel-img"  style="width: 100%;"/>
+          </swiper-item>
+        </block>
+      </swiper>
+  </view>
+ </view>   

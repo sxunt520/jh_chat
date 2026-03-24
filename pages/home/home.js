@@ -96,8 +96,10 @@ Page({
       url: "https://dj.awsl8.com/v1/chat/ai-home", // 获取角色列表
       method: 'post',
       data: {
-        page: 1,
-        pagenum: 1,
+        page: 1,//角色列表取第几页
+        pagenum: 10,//角色列表一页多少条
+        chat_page: 1,//聊天记录取第几页
+        chat_pagenum: 30,//聊天记录一页多少条
       },
       header: {
         'content-type': 'application/x-www-form-urlencoded',
@@ -392,9 +394,9 @@ Page({
         if (res.data.status==0 && res.data.data) {
 
           //Ai回复的内容在推上去
-          const msg = { cid: res.data.data.cid, content: res.data.data.content, time: res.data.data.time, isSelf: false };
-          newPages[idx].chatList.push(msg);
-          newPages[idx].latestMessage = msg;
+          const msg_ai = { cid: res.data.data.cid, content: res.data.data.content, time: res.data.data.time, isSelf: false };
+          newPages[idx].chatList.push(msg_ai);
+          newPages[idx].latestMessage = msg_ai;
           this.setData({ pages: newPages, inputValue: '', isFocus: false });
 
           // fetchStream(res.data.data.message.content.data, {
