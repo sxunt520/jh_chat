@@ -93,7 +93,7 @@ Page({
 
     //加载角色pages
     wx.request({
-      url: "https://dj.awsl8.com/v1/chat/ai-home", // 获取角色列表
+      url: "https://dj.awsl8.com/v2/chat/ai-home", // 获取角色列表
       method: 'post',
       data: {
         page: 1,//角色列表取第几页
@@ -379,7 +379,7 @@ Page({
 
     //请求接口返回ai回复
     wx.request({
-      url: "https://dj.awsl8.com/v1/chat/send-message3",
+      url: "https://dj.awsl8.com/v2/chat/send-msg",
       method: "POST",
       data: {
         roleId: roleId,
